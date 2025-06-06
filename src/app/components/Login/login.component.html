@@ -1,0 +1,36 @@
+<div class="login-wrapper">
+  <p-toast></p-toast>
+  <div class="login-container">
+    <!-- Painel esquerdo (imagem em tela cheia) -->
+    <div class="left-panel">
+      <div class="image-container">
+        <img src="/assets/images/login.png" alt="Hubbbi Logo Espacial" class="space-image" />
+        <div class="stars-overlay"></div>
+      </div>
+    </div>
+
+    <!-- Painel direito (formulário) -->
+    <div class="right-panel">
+      <h2>Hubbie Login |</h2>
+
+      <div class="form-group">
+        <input pInputText type="text" placeholder="Usuário" name="username" [(ngModel)]="username" />
+      </div>
+
+      <div class="form-group">
+        <p-password [feedback]="false" toggleMask="true" placeholder="Senha" [(ngModel)]="password" name="password">
+        </p-password>
+      </div>
+
+      <div class="options">
+        <div class="checkbox-remember">
+          <p-checkbox [(ngModel)]="rememberMe" binary="true" inputId="rememberMe"></p-checkbox>
+          <label for="rememberMe"> Lembrar-me</label>
+        </div>
+        <a class="forgot-password" href="#">Esqueci minha senha</a>
+      </div>
+
+      <button pButton type="button" label="Entrar" class="login-button" (click)="onLogin()"></button>
+    </div>
+  </div>
+</div>

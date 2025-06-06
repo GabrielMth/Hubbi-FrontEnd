@@ -1,0 +1,15 @@
+<div class="navbar">
+  <p-menubar [model]="items">
+
+    <ng-template pTemplate="end">
+      <p-tag severity="contrast" [value]="nomeUsuario + ' |'" class="user-name" />
+      <a pButton icon="pi pi-user" class="p-button-text" (click)="menuLogout.toggle($event)"></a>
+      <p-menu #menuLogout [popup]="true" [model]="itemsLogout" appendTo="body" class="user-menu">
+      </p-menu>
+    </ng-template>
+  </p-menubar>
+
+  <div class="logo-container" (click)="onLogoClick()">
+    <img src="assets/icons/h.png" width="50" alt="Logo da Empresa" class="logo" />
+  </div>
+</div>

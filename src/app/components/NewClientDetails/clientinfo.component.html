@@ -1,0 +1,43 @@
+<div class="container">
+  <p-dialog class="dialoginfoclient" [(visible)]="visibleInfoClientDialog" [modal]="true"
+    [style]="{ width: '40rem', height: '45rem' }" header="CADASTRO" (onHide)="fecharDetails()">
+
+    <p-divider type="dotted" />
+
+    <div class="infoclientes">
+      <div class="cupom-cliente">
+        <div class="cupom-header">INFORMAÇÕES DO CLIENTE CADASTRADO</div>
+
+        <div class="cupom-content">
+          <p><strong>Nome:</strong> {{cliente.nome}} </p>
+          <p><strong>{{ isPessoaJuridica ? 'CNPJ' : 'CPF' }}:</strong> {{ cliente.documento }}</p>
+          <p-divider type="dotted" />
+          <p><strong>Celular:</strong> {{cliente.celular}} </p>
+          <p><strong>Telefone:</strong> {{ cliente.telefone ? cliente.telefone : 'Não informado' }} </p>
+          <p-divider type="dotted" />
+          <p><strong>Cidade:</strong> {{cliente.endereco.cidade}} </p>
+          <p><strong>CEP:</strong> {{cliente.endereco.cep}} </p>
+          <p><strong>Bairro:</strong> {{cliente.endereco.bairro}} </p>
+          <p><strong>Logradouro (Rua):</strong> {{cliente.endereco.rua}} </p>
+          <p><strong>Número da casa:</strong> {{cliente.endereco.numero}} </p>
+          <p><strong>Estado (UF):</strong> {{cliente.endereco.estado}} </p>
+          <p><strong>Data de Cadastro:</strong> {{ cliente.dataCadastro | date:'dd/MM/yyyy HH:mm' }} </p>
+        </div>
+
+        <div class="cupom-footer">
+          É importante manter as informações do cliente sempre atualizadas.
+        </div>
+      </div>
+    </div>
+
+    <p-divider type="dotted" />
+
+
+
+    <ng-template #footer>
+      <p-button label="OK" icon="pi pi-check" severity="warn" [raised]="true" (onClick)="fecharDetails()" />
+    </ng-template>
+
+  </p-dialog>
+
+</div>

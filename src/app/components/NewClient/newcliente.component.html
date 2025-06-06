@@ -1,0 +1,214 @@
+<div class="container">
+  <p-confirmDialog></p-confirmDialog>
+  <p-toast></p-toast>
+  <p-dialog [(visible)]="visibleDialogNewClient" [modal]="true" header="Cadastro de Cliente"
+    [style]="{ width: '40rem', height: '45rem' }" (onHide)="fecharDialogCadastro(form)">
+    <p-divider type="dotted" />
+
+    <form #form="ngForm" autocomplete="off">
+      <div class="input-row">
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-user"></i>
+          </p-inputgroup-addon>
+          <p-floatlabel variant="on">
+            <input pInputText id="nome" autocomplete="off" maxlength="50" minlength="5" name="nome" required
+              [(ngModel)]="clienteFormulario.nome" #nomeControl="ngModel" />
+            <label for="nome">Nome</label>
+          </p-floatlabel>
+        </p-inputgroup>
+        <app-message-valid-forms [control]="nomeControl" text="O nome é obrigatório"
+          error="required"></app-message-valid-forms>
+        <app-message-valid-forms [control]="nomeControl" text="Informe um nome com pelo menos 5 caracteres"
+          error="minlength"></app-message-valid-forms>
+      </div>
+
+      <div class="input-row">
+        <p-checkbox size="small" name="isPessoaJuridica" [(ngModel)]="isPessoaJuridica" binary="true"
+          inputId="pjCheck"></p-checkbox>
+        <label for="pjCheck"> Cliente Jurídico (s/n)</label>
+      </div>
+      <div class="input-row two-columns">
+        <div class="input-col">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-address-book"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel>
+              <p-inputmask [mask]="isPessoaJuridica ? '99.999.999/9999-99' : '999.999.999-99'" autocomplete="off"
+                required [name]="isPessoaJuridica ? 'cnpj' : 'cpf'" [(ngModel)]="clienteFormulario.documento"
+                #cpfControl="ngModel" (onBlur)="onCpfCnpjBlur()" (onFocus)="onCpfCnpjFocus()" />
+              <label [for]="isPessoaJuridica ? 'cnpj' : 'cpf'">{{ isPessoaJuridica ? 'CNPJ' : 'CPF' }}</label>
+            </p-iftalabel>
+          </p-inputgroup>
+
+          <app-message-valid-forms [control]="cpfControl"
+            [text]="isPessoaJuridica ? 'CNPJ é obrigatório' : 'CPF é obrigatório'"
+            error="required"></app-message-valid-forms>
+
+          <div *ngIf="!isPessoaJuridica && cpfInvalido && cpfControl?.valid" class="messageerror">
+            <p-message severity="error" variant="simple" size="small">
+              Esse CPF não existe!
+            </p-message>
+          </div>
+
+          <div *ngIf="isPessoaJuridica && cnpjInvalido && cpfControl?.valid" class="messageerror">
+            <p-message severity="error" variant="simple" size="small">
+              Esse CNPJ não existe!
+            </p-message>
+          </div>
+
+        </div>
+
+        <div class="input-col">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-map-marker"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel>
+              <p-inputmask id="cep" mask="99999-999" autocomplete="off" required name="cep"
+                [(ngModel)]="clienteFormulario.endereco.cep" #cepControl="ngModel" (onBlur)="onCepBlur()" />
+              <label for="cep">CEP</label>
+            </p-iftalabel>
+          </p-inputgroup>
+
+          <app-message-valid-forms [control]="cepControl" text="CEP é obrigatório"
+            error="required"></app-message-valid-forms>
+
+          <div *ngIf="cepInvalido == true && cepControl?.value" class="messageerror">
+            <p-message severity="error" variant="simple" size="small">CEP Inválido</p-message>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="input-row two-columns">
+        <div class="input-col">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-compass"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel>
+              <input pInputText id="bairro" class="inputuseropen1-dialog" required name="bairro"
+                [(ngModel)]="clienteFormulario.endereco.bairro" #bairroControl="ngModel" />
+              <label for="bairro">Bairro</label>
+            </p-iftalabel>
+          </p-inputgroup>
+          <app-message-valid-forms [control]="bairroControl" text="Bairro é obrigatório"
+            error="required"></app-message-valid-forms>
+        </div>
+
+        <div class="input-col">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-building"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel>
+              <input pInputText id="cidade" class="inputuseropen1-dialog" required name="cidade"
+                [(ngModel)]="clienteFormulario.endereco.cidade" #cidadeControl="ngModel" />
+              <label for="cidade">Cidade</label>
+            </p-iftalabel>
+          </p-inputgroup>
+          <app-message-valid-forms [control]="cidadeControl" text="Cidade é obrigatório"
+            error="required"></app-message-valid-forms>
+        </div>
+
+      </div>
+
+      <div class="input-row two-columns">
+        <div class="input-col">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-map"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel>
+              <input pInputText id="estado" class="inputuseropen1-dialog" required name="estado"
+                [(ngModel)]="clienteFormulario.endereco.estado" #estadoControl="ngModel" />
+              <label for="estado">Estado (UF)</label>
+            </p-iftalabel>
+          </p-inputgroup>
+          <app-message-valid-forms [control]="estadoControl" text="UF é obrigatório"
+            error="required"></app-message-valid-forms>
+        </div>
+
+        <div class="input-col">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-warehouse"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel>
+              <input pInputText type="number" id="numcasa" class="inputuseropen1-dialog" required name="numero"
+                [(ngModel)]="clienteFormulario.endereco.numero" #numCasaControl="ngModel" />
+              <label for="numcasa">Número</label>
+            </p-iftalabel>
+          </p-inputgroup>
+          <app-message-valid-forms [control]="numCasaControl" text="O número da casa é obrigatório" error="required">
+          </app-message-valid-forms>
+        </div>
+      </div>
+
+      <div class="input-col">
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-map"></i>
+          </p-inputgroup-addon>
+          <p-iftalabel>
+            <input pInputText id="rua" class="inputuseropen1-dialog" required name="rua"
+              [(ngModel)]="clienteFormulario.endereco.rua" #ruaControl="ngModel" />
+            <label for="rua">Logradouro (Rua)</label>
+          </p-iftalabel>
+        </p-inputgroup>
+        <app-message-valid-forms [control]="ruaControl" text="O nome da rua é obrigatório"
+          error="required"></app-message-valid-forms>
+      </div>
+
+      <p-divider type="dotted" />
+
+      <div class="input-row two-columns">
+        <div class="input-col">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-mobile"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel>
+              <p-inputmask id="celular" mask="(99) 99999-9999" autocomplete="off" required name="celular"
+                [(ngModel)]="clienteFormulario.celular" #celularControl="ngModel" />
+              <label for="celular">Celular</label>
+            </p-iftalabel>
+          </p-inputgroup>
+          <app-message-valid-forms [control]="celularControl" text="Celular é obrigatório"
+            error="required"></app-message-valid-forms>
+        </div>
+
+        <div class="input-col">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-phone"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel>
+              <p-inputmask id="telefone" mask="(99) 9999-9999" autocomplete="off" name="telefone"
+                [(ngModel)]="clienteFormulario.telefone" />
+              <label for="telefone">Telefone (Opcional)</label>
+            </p-iftalabel>
+          </p-inputgroup>
+        </div>
+      </div>
+    </form>
+
+
+
+    <p-divider type="dotted" />
+
+    <ng-template #footer>
+      <div class="dialog-footer">
+        <p-button label="Salvar" icon="pi pi-save" [raised]="true" (onClick)="confirmarCadastroPessoa(form)" />
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <app-clientinfo [visibleInfoClientDialog]="visibleDialogDetailsClient" (closedDialogDetails)="fecharDialogDetails()"
+    [cliente]="clienteDetalhe" [isPessoaJuridica]="isPessoaJuridicaDetalhe">
+  </app-clientinfo>
+
+
+</div>

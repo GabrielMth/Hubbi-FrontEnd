@@ -1,0 +1,75 @@
+.navbar {
+  width: 100%;
+  background-color: #272626; // fundo escuro base
+  padding: 0;
+  position: relative;
+
+  /* Override das variáveis do menubar */
+  --p-menubar-background: #252424;               // fundo escuro do menubar
+  --p-menubar-border-color: transparent;         // remover borda
+  --p-menubar-color: #eeeeee;                     // texto claro
+  --p-menubar-item-color: #cccccc;                // itens normais
+  --p-menubar-item-focus-color: #ffffff;          // cor foco do item
+  --p-menubar-item-active-color: #ffffff;         // cor do item ativo
+  --p-menubar-item-focus-background: #333333;    // fundo do item focado
+  --p-menubar-item-active-background: #444444;   // fundo do item ativo
+  --p-menubar-submenu-background: #222222;        // fundo do submenu escuro
+  --p-menubar-submenu-border-color: #333333;      // borda submenu
+  --p-menubar-submenu-shadow: none;                // sombra do submenu (opcional)
+}
+
+
+.logo-container {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes pulseGlow {
+  0% {
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1));
+  }
+  100% {
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+  }
+}
+
+.logo {
+  width: 35px;
+  height: 35px;
+  transition: transform 0.6s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(1.15) rotate(360deg);
+    animation: pulseGlow 1.5s infinite ease-in-out;
+  }
+}
+
+/* Se quiser estilizar os links do menubar (p-menubar-item-link) */
+.p-menubar-item-link {
+  color: var(--p-menubar-item-color);
+}
+
+.p-menubar-item-link:hover,
+.p-menubar-item-link:focus {
+  color: var(--p-menubar-item-focus-color);
+  background-color: var(--p-menubar-item-focus-background);
+}
+
+
+.user-menu {
+  z-index: 1300 !important;
+  max-width: 90vw;
+  right: 0; // alinha com o botão
+}
+
+.p-tieredmenu {
+  max-width: 90vw;
+  overflow-x: auto;
+  position: absolute !important;
+}

@@ -1,0 +1,51 @@
+.footer-fixed {
+  position: static;
+  bottom: auto;
+  left: auto;
+  width: 100%;
+  background: transparent;
+
+  display: flex;
+  flex-direction: column; /* aqui: empilha verticalmente */
+  justify-content: center;
+  align-items: center;
+
+  padding: 10px 0;
+  z-index: 1000;
+
+  @media (min-width: 768px) {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+  }
+}
+
+
+.footer-logo {
+  width: 80px;
+  height: auto;
+  animation: pulseGlow 2.5s infinite ease-in-out;
+  margin-bottom: 6px;
+}
+
+.footer-logo-inline {
+  width: 20px;
+  height: auto;
+  vertical-align: middle;
+  margin: 0 6px;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 10px #00ffff)
+      drop-shadow(0 0 20px #00ffff)
+      drop-shadow(0 0 30px #00ffff);
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 3px #00cccc)
+      drop-shadow(0 0 6px #00cccc)
+      drop-shadow(0 0 9px #00cccc);
+  }
+}

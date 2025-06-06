@@ -1,0 +1,268 @@
+/* Escopo apenas no componente de login - Dark Mode */
+.login-wrapper {
+  height: 100vh;
+  width: 100vw;
+  background: linear-gradient(135deg, #1e1e2f, #121224, #2a2138);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  color: #eee;
+}
+
+.login-container {
+  display: flex;
+  width: 900px;
+  height: 500px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  background-color: #222233;
+}
+
+
+
+
+
+.right-panel {
+  flex: 1;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #2b2b3c;
+  color: #eee;
+}
+
+.left-panel h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #ddd;
+}
+
+.left-panel p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #aaa;
+}
+
+.right-panel h2 {
+  margin-bottom: 2rem;
+  color: #eee;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+input[pInputText]{
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background-color: #444455;
+  color: #eee;
+  font-size: 1rem;
+}
+
+input[pInputText]::placeholder {
+  color: #999;
+}
+
+input[pInputText]:focus{
+  outline: none;
+  border-color: #8a7fff;
+  background-color: #555566;
+  color: #fff;
+}
+
+.options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+  color: #ccc;
+}
+
+.forgot-password {
+  color: #999;
+  text-decoration: none;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+  color: #aaa;
+}
+
+.checkbox-remember label {
+  color: #ccc;
+}
+
+.login-button {
+  width: 100%;
+  background-color: #5376d4;
+  color: #f7f6f6;
+  border: none;
+  padding: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+    width: 90%;
+    height: auto;
+    border-radius: 16px;
+
+    .left-panel {
+      display: none;
+    }
+
+    .right-panel {
+      width: 100%;
+      border-radius: 16px;
+      padding: 2rem;
+
+      h2 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+
+        &::before {
+          content: 'Seja bem-vindo(a) ao Hubbie';
+          display: block;
+          font-size: 1.2rem;
+          font-weight: 500;
+          color: #888;
+          margin-bottom: 0.5rem;
+        }
+      }
+    }
+  }
+
+  .checkbox-remember {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+}
+
+
+:host ::ng-deep .p-password {
+  width: 100%;
+  display: block; /* garantir comportamento block */
+}
+
+:host ::ng-deep .p-password-input {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background-color: #444455;
+  color: #eee;
+  font-size: 1rem;
+  box-sizing: border-box;
+  height: 2.6rem; /* ajuste para igualar altura do input */
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+
+/* Placeholder */
+:host ::ng-deep .p-password-input::placeholder {
+  color: #999;
+}
+
+/* Foco */
+:host ::ng-deep .p-password-input:focus {
+  outline: none;
+  border-color: #8a7fff !important;
+  background-color: #555566;
+  color: #fff;
+}
+
+/* Ícone olho - cor clara */
+:host ::ng-deep .p-password-mask-icon,
+:host ::ng-deep .p-password-unmask-icon {
+  color: #ccc;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+:host ::ng-deep .p-password-mask-icon:hover,
+:host ::ng-deep .p-password-unmask-icon:hover {
+  color: #eee;
+}
+
+/* Remove medidor de força só por garantia */
+:host ::ng-deep .p-password-meter {
+  display: none !important;
+}
+
+
+.left-panel {
+  flex: 2;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+  overflow: hidden;
+}
+
+.image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.space-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.stars-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.9) 1px, transparent 2px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.7) 1px, transparent 2px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.6) 1px, transparent 2px);
+  background-size: 100px 100px, 150px 150px, 200px 200px;
+  background-position: 0 0, 50px 50px, 100px 100px;
+  opacity: 0.8;
+  animation: starsMove 12s linear infinite, pulseGlow 2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes starsMove {
+  0% {
+    background-position: 0 0, 50px 50px, 100px 100px;
+  }
+  100% {
+    background-position: -300px 300px, -250px 250px, -200px 200px;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5))
+            drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8))
+            drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
+  }
+}

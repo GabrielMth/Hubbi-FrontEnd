@@ -1,0 +1,86 @@
+<div class="comments-section">
+
+  <ul class="comment-list">
+    <li *ngFor="let comment of comments">
+      <strong><i class="pi pi-comments" style="margin-right: 0.5rem;"></i>{{ comment.author }}</strong>
+      {{ comment.text }}
+      <div class="media-thumbnails" *ngIf="comment.mediaBase64?.length">
+        <ng-container *ngFor="let media of comment.mediaBase64">
+          <img *ngIf="media.type === 'image'" [src]="media.data" (click)="openViewer(media.data, 'image')"
+            class="thumbnail-img" />
+          <video *ngIf="media.type === 'video'" [src]="media.data" muted playsinline class="thumbnail-video"
+            (click)="openViewer(media.data, 'video')"></video>
+        </ng-container>
+      </div>
+
+      <small>{{ comment.date | date: 'dd/MM/yyyy HH:mm' }}</small>
+    </li>
+  </ul>
+
+  <p-floatlabel variant="in">
+    <textarea pTextarea id="addComment" rows="3" cols="30" style="resize: none; width: 100%; height: auto;" class="h-full"
+      name="addComment" [(ngModel)]="newComment"></textarea>
+    <label for="addComment">Escreva um comentário ao card...</label>
+  </p-floatlabel>
+
+  <div class="comment-actions">
+    <div class="image-upload-group">
+      <input type="file" #imageInput (change)="handleMediaUpload($event)" accept="image/*,video/*" multiple
+        style="display: none;">
+      <p-button icon="pi pi-images" label="Mídia" severity="secondary" (click)="imageInput.click()"></p-button>
+
+      <span class="file-name">{{ selectedFileName || 'Nenhum arquivo selecionado' }}</span>
+    </div>
+
+    <p-button label="Comentar" severity="info" (click)="addComment()" [style]="{ 'margin-left': '1rem' }"></p-button>
+  </div>
+
+  <p-dialog
+  [(visible)]="showViewer"
+  modal
+  draggable="false"
+  resizable
+  [closable]="true"
+  [contentStyle]="{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0'}"
+>
+  <!-- Header personalizado -->
+  <ng-template pTemplate="header">
+    <div style="position: relative; width: 100%; text-align: center;">
+      <span style="font-weight: bold;">Visualização de Mídia</span>
+      <a
+        *ngIf="viewerType === 'image'"
+        [href]="viewerContent"
+        download="imagem.jpg"
+        style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); color: inherit; text-decoration: none;"
+      >
+        <i class="pi pi-download" style="font-size: 1.25rem; cursor: pointer;"></i>
+      </a>
+    </div>
+  </ng-template>
+
+  <!-- Corpo -->
+  <img
+  *ngIf="viewerType === 'image'"
+  #fullscreenImg
+  [src]="viewerContent"
+  [style.max-width]="zoomed ? '70%' : '100%'"
+  [style.max-height]="zoomed ? '70%' : '100%'"
+  [style.width]="zoomed ? '70%' : '100%'"
+  [style.height]="zoomed ? '70%' : '100%'"
+  style="cursor: zoom-in; border-bottom-left-radius: 1rem; border-bottom-right-radius: 1rem;"
+  (click)="openFullscreen(fullscreenImg)"
+  alt="Imagem do comentário"
+  />
+
+  <video
+    *ngIf="viewerType === 'video'"
+    [src]="viewerContent"
+    controls
+    autoplay
+    style="max-width: 100%; max-height: 100%; background: black;"
+  ></video>
+</p-dialog>
+
+
+
+</div>

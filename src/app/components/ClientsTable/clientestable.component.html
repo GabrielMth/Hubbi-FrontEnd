@@ -1,0 +1,366 @@
+<div class="container">
+  <p-confirmpopup />
+  <p-toast></p-toast>
+  <p-card class="cardclientes" header="Clientes |">
+    <div class="info-box" [class.collapsed]="!expanded">
+      <button class="info-toggle" (click)="expanded = !expanded" [attr.aria-expanded]="expanded"
+        aria-controls="info-content" aria-label="Toggle informações">
+        <strong>💡 Informações</strong>
+        <span class="toggle-icon">{{ expanded ? '▼' : '▲' }}</span>
+      </button>
+      <div id="info-content" class="info-content" *ngIf="expanded">
+        <ul>
+          <li>🔍 Pesquisar clientes usando filtros por nome (se disponível).</li>
+          <li>🔃 Ordenar colunas clicando no título de cada coluna.</li>
+          <li>👁️ Paginar os resultados com o controle de páginas.</li>
+          <li>✏️ Visualizar detalhes ao dar duplo clique em uma linha.</li>
+          <li>⚠️ Clientes inativos são indicados com a tag <span class="inativo-destaque">INATIVO</span>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="inputsuptable">
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search" />
+        <input type="text" pInputText placeholder="Buscar por nome" name="search" autocomplete="off" fluid
+          class="busca-nome-input" [(ngModel)]="filtroBuscar"
+          (keydown.enter)="carregarClientes(ultimaPaginacao ?? { first: 0, rows: 15, sortField: 'nome', sortOrder: 1 })" />
+      </p-iconfield>
+
+      <p-button href="" severity="info" label="Cliente" [raised]="true" icon="pi pi-user-plus"
+        (onClick)="abrirCadastroCliente()"> </p-button>
+    </div>
+
+    <div class="table-wrapper dark-mode">
+      <p-table class="tableclientes" [totalRecords]="totalRegistros" [loading]="false" [value]="clientes" [lazy]="true"
+        [paginator]="true" [stripedRows]="true" [rowsPerPageOptions]="[10, 15, 20, 30]" [rows]="10"
+        [tableStyle]="{ 'min-width': '50rem' }" (onLazyLoad)="carregarClientes($event)" showGridlines
+        selectionMode="single">
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="nome" style="width:30%">Nome<p-sortIcon field="nome" /> </th>
+            <th style="width:15%">Documento</th>
+            <th style="width:15%">CEP</th>
+            <th style="width:20%">Bairro</th>
+            <th style="width:30%">Celular</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-cliente>
+          <tr [pSelectableRow]="cliente" (dblclick)="onRowDoubleClick(cliente)">
+            <td>
+              <div class="nome-tag-wrapper">
+                <span class="nome-cliente">{{ cliente.nome }}</span>
+                <p-tag class="tagTable" *ngIf="!cliente.ativo" severity="danger">INATIVO</p-tag>
+              </div>
+            </td>
+            <td>{{ cliente.documento }}</td>
+            <td>{{ cliente.endereco?.cep || '-' }}</td>
+            <td>{{ cliente.endereco?.bairro || '-' }}</td>
+            <td>{{ cliente.celular }}</td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr *ngIf="naoEncontrado" style="color: rgb(143, 139, 139); font-size: 1rem;">
+            <td colspan="5" style="text-align: center;">
+              <i class="pi pi-thumbs-down" style="margin-right: 0.5rem; color: rgb(250, 98, 98);"></i>
+              Ops! Infelizmente não há ninguém registrado no sistema
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <div *ngIf="carregando" class="spinner-overlay flex flex-column justify-center align-items-center">
+        <p-progress-spinner ariaLabel="loading"></p-progress-spinner>
+      </div>
+    </div>
+
+    <p-dialog [(visible)]="visibleDialogDetails" [modal]="true" header="Detalhes do Cliente"
+      [style]="{ width: '40rem', height: '47rem' }" (onHide)="fecharDetalhesCliente()">
+      <p-divider class="divider" type="dotted" />
+
+      <form autocomplete="off" #form="ngForm">
+        <div class="input-row">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-user"></i>
+            </p-inputgroup-addon>
+            <p-floatlabel variant="on">
+              <input pInputText id="nome" autocomplete="off" [ngModel]="clienteSelecionado.nome" name="nome"
+                maxlength="50" minlength="5" required #nomeControl="ngModel" />
+              <label for="nome">Nome</label>
+            </p-floatlabel>
+          </p-inputgroup>
+
+          <app-message-valid-forms [control]="nomeControl" text="Nome é obrigatório"
+            error="required"></app-message-valid-forms>
+
+          <app-message-valid-forms [control]="nomeControl" text="Informe um nome com pelo menos 5 caracteres"
+            error="minlength"></app-message-valid-forms>
+
+        </div>
+
+        <div class="input-row">
+          <p-checkbox size="small" name="isPessoaJuridica" [(ngModel)]="isPessoaJuridica" binary="true"
+            inputId="pjCheck" (onChange)="onTipoPessoaChange()"></p-checkbox>
+          <label for="pjCheck"> Cliente Jurídico (s/n)</label>
+        </div>
+        <div class="input-row two-columns">
+          <div class="input-col">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-address-book"></i>
+              </p-inputgroup-addon>
+              <p-iftalabel>
+                <p-inputmask [mask]="isPessoaJuridica ? '99.999.999/9999-99' : '999.999.999-99'" autocomplete="off"
+                  required [name]="isPessoaJuridica ? 'cnpj' : 'cpf'" [ngModel]="clienteSelecionado.documento"
+                  #cpfControl="ngModel" (onBlur)="onCpfCnpjBlur($event)" (onFocus)="onCpfCnpjFocus()" />
+                <label [for]="isPessoaJuridica ? 'cnpj' : 'cpf'">{{ isPessoaJuridica ? 'CNPJ' : 'CPF' }}</label>
+              </p-iftalabel>
+            </p-inputgroup>
+
+            <app-message-valid-forms [control]="cpfControl"
+              [text]="isPessoaJuridica ? 'CNPJ é obrigatório' : 'CPF é obrigatório'"
+              error="required"></app-message-valid-forms>
+
+            <div *ngIf="!isPessoaJuridica && cpfInvalido && cpfControl?.valid" class="messageerror">
+              <p-message severity="error" variant="simple" size="small">
+                Esse CPF não existe!
+              </p-message>
+            </div>
+
+            <div *ngIf="isPessoaJuridica && cnpjInvalido && cpfControl?.valid" class="messageerror">
+              <p-message severity="error" variant="simple" size="small">
+                Esse CNPJ não existe!
+              </p-message>
+            </div>
+
+          </div>
+
+          <div class="input-col">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-map-marker"></i>
+              </p-inputgroup-addon>
+              <p-iftalabel>
+                <p-inputmask id="cep" mask="99999-999" autocomplete="off" required name="cep"
+                  [(ngModel)]="clienteSelecionado.endereco.cep" #cepControl="ngModel" (onBlur)="onCepBlur()" />
+                <label for="cep">CEP</label>
+              </p-iftalabel>
+            </p-inputgroup>
+
+            <app-message-valid-forms [control]="cepControl" text="CEP é obrigatório"
+              error="required"></app-message-valid-forms>
+
+            <div *ngIf="cepInvalido == true && cepControl?.value" class="messageerror">
+              <p-message severity="error" variant="simple" size="small">CEP Inválido</p-message>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="input-row two-columns">
+          <div class="input-col">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-compass"></i>
+              </p-inputgroup-addon>
+              <p-iftalabel>
+                <input pInputText id="bairro" class="inputuseropen1-dialog"
+                  [ngModel]="clienteSelecionado.endereco.bairro" name="bairro" required #controlBairro="ngModel" />
+                <label for="bairro">Bairro</label>
+              </p-iftalabel>
+            </p-inputgroup>
+            <app-message-valid-forms [control]="controlBairro" text="O bairro é obrigatório"
+              error="required"></app-message-valid-forms>
+          </div>
+
+          <div class="input-col">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-building"></i>
+              </p-inputgroup-addon>
+              <p-iftalabel>
+                <input pInputText id="cidade" class="inputuseropen1-dialog"
+                  [(ngModel)]="clienteSelecionado.endereco.cidade" name="cidade" required #controlCidade="ngModel" />
+                <label for="cidade">Cidade</label>
+              </p-iftalabel>
+            </p-inputgroup>
+            <app-message-valid-forms [control]="controlCidade" text="O nome da cidade é obrigatório"
+              error="required"></app-message-valid-forms>
+          </div>
+        </div>
+
+        <div class="input-row two-columns">
+          <div class="input-col">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-map"></i>
+              </p-inputgroup-addon>
+              <p-iftalabel>
+                <input pInputText id="estado" class="inputuseropen1-dialog"
+                  [(ngModel)]="clienteSelecionado.endereco.estado" name="estado" required #controlEstado="ngModel" />
+                <label for="estado">Estado</label>
+              </p-iftalabel>
+            </p-inputgroup>
+            <app-message-valid-forms [control]="controlEstado" text="O estado é obrigatório"
+              error="required"></app-message-valid-forms>
+          </div>
+
+          <div class="input-col">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-warehouse"></i>
+              </p-inputgroup-addon>
+              <p-iftalabel>
+                <input pInputText type="number" id="numero" class="inputuseropen1-dialog" required name="numero"
+                  [(ngModel)]="clienteSelecionado.endereco.numero" #numeroControl="ngModel" />
+                <label for="numero">Número da Casa</label>
+              </p-iftalabel>
+            </p-inputgroup>
+            <app-message-valid-forms [control]="numeroControl" text="O número da rua é obrigatório"
+              error="required"></app-message-valid-forms>
+          </div>
+        </div>
+
+        <div class="input-col">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-map"></i>
+            </p-inputgroup-addon>
+            <p-iftalabel>
+              <input pInputText id="rua" class="inputuseropen1-dialog" [(ngModel)]="clienteSelecionado.endereco.rua"
+                name="rua" #ruaControl="ngModel" required />
+              <label for="rua">Logradouro (Rua)</label>
+            </p-iftalabel>
+          </p-inputgroup>
+          <app-message-valid-forms [control]="ruaControl" text="O nome da rua é obrigatório"
+            error="required"></app-message-valid-forms>
+        </div>
+
+        <p-divider class="divider" type="dotted" />
+
+        <div class="input-row two-columns">
+          <div class="input-col">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-mobile"></i>
+              </p-inputgroup-addon>
+              <p-iftalabel>
+                <p-inputmask id="celular" mask="(99) 99999-9999" autocomplete="off"
+                  [(ngModel)]="clienteSelecionado.celular" name="celular" #celularControl="ngModel" required />
+                <label for="celular">Celular</label>
+              </p-iftalabel>
+            </p-inputgroup>
+            <app-message-valid-forms [control]="celularControl" text="Celular é obrigatório"
+              error="required"></app-message-valid-forms>
+          </div>
+
+          <div class="input-col">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-phone"></i>
+              </p-inputgroup-addon>
+              <p-iftalabel>
+                <p-inputmask id="telefone" mask="(99) 9999-9999" autocomplete="off"
+                  [(ngModel)]="clienteSelecionado.telefone" name="telefone" />
+                <label for="telefone">Telefone</label>
+              </p-iftalabel>
+            </p-inputgroup>
+          </div>
+        </div>
+
+
+
+
+
+        <p-divider class="divider" type="dotted" />
+
+        <div class="footer" style="display: flex; align-items: center; gap: 0.5rem; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <p-tag severity="secondary" value="Data de Cadastro:"></p-tag>
+            <span>{{ clienteSelecionado.dataCadastro | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 0.3rem;">
+            <p-checkbox [(ngModel)]="clienteSelecionado.ativo" [binary]="true" name="ativo"
+              (onChange)="atualizarStatusCliente($event, clienteSelecionado)" #ativoInativo="ngModel"></p-checkbox>
+            <span [ngStyle]="{ color: clienteSelecionado.ativo ? 'inherit' : '#f44336' }">{{ clienteSelecionado.ativo ?
+              'ATIVO' : 'INATIVO' }}</span>
+          </div>
+        </div>
+
+      </form>
+
+
+      <ng-template #footer>
+        <div class="buttonfooter">
+          <p-button label="-> WhatsApp" icon="pi pi-whatsapp" [raised]="true"
+            (onClick)="enviarParaWhatsApp()"></p-button>
+          <p-button label="Usuários" icon="pi pi-user" [raised]="true" (onClick)="abrirUsuariosCliente()"></p-button>
+          <p-button label="Salvar Edição" icon="pi pi-pencil" [raised]="true"
+            (onClick)="confirmarEdicao($event, form)" />
+        </div>
+      </ng-template>
+    </p-dialog>
+
+  </p-card>
+
+
+
+  <p-dialog [(visible)]="visibleDialogUsers" [modal]="true" header="Usuários do Cliente"
+    [style]="{ width: '45rem', height: '47rem' }" [breakpoints]="{ '960px': '95vw'}">
+
+    <div class="input-row">
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          <i class="pi pi-users"></i>
+        </p-inputgroup-addon>
+        <p-floatlabel variant="on">
+          <input pInputText id="cliente" autocomplete="off"
+            [ngModel]="clienteSelecionado.nome + ' - ' + clienteSelecionado.documento" name="cliente" readonly />
+          <label for="cliente">Cliente Selecionado</label>
+        </p-floatlabel>
+      </p-inputgroup>
+    </div>
+
+    <div class="table-wrapper dark-mode" *ngIf="visibleDialogUsers" style="overflow-x: auto; max-width: 100%;">
+
+      <p-table class="tableclientes" [value]="usuariosCliente" [rows]="10" [lazy]="true" [paginator]="true"
+        [stripedRows]="true" [showGridlines]="true" (onLazyLoad)="carregarUsuariosLazy($event)"
+        [totalRecords]="totalRegistrosUsuarios" [scrollable]="true" [tableStyle]="{ 'min-width': '40rem' }"
+        [loading]="false">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="nome" style="width:25%">Nome <p-sortIcon field="nome" /></th>
+            <th style="width:25%">Username</th>
+            <th style="width:25%">Perfil</th>
+            <th style="width:25%">E-mail</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-usuario>
+          <tr>
+            <td>{{ usuario.nome }}</td>
+            <td>{{ usuario.username }}</td>
+            <td>{{ usuario.role }}</td>
+            <td>{{ usuario.email }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <div *ngIf="carregandoUsuarios" class="spinner-overlay flex flex-column justify-center align-items-center">
+        <p-progress-spinner ariaLabel="loading"></p-progress-spinner>
+      </div>
+    </div>
+
+    <ng-template #footer>
+      <p-button label="Novo Usuário" [raised]="true" severity="secondary" />
+      <p-button label="Apagar" [raised]="true" severity="secondary" />
+    </ng-template>
+  </p-dialog>
+
+  <app-newcliente [visibleDialogNewClient]="dialogCadastroCliente"
+    (closedCadastro)="fecharCadastroCliente()"></app-newcliente>
+
+</div>

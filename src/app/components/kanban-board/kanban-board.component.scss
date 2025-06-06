@@ -1,0 +1,367 @@
+.kanban-board {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  max-width: 100%;
+  overflow-x: auto;
+  margin-top: 10px;
+}
+
+::ng-deep p-panel.kanban-dark .p-panel {
+  background-color: #1e1e2f;
+  border: 1px solid #333;
+}
+
+
+.kanban-column {
+  flex: 1;
+  min-width: 223px;
+  display: flex;
+  flex-direction: column;
+}
+
+.kanban-drop-area {
+  min-height: 500px;
+  max-height: calc(100vh - 14rem); /* Ajuste conforme necessário */
+  overflow-y: auto;
+
+  background-color: #2a2a40;
+  border: 1px solid #444;
+  padding: 0.3rem;
+  border-radius: 4px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.kanban-drop-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.kanban-drop-area::-webkit-scrollbar-track {
+  background: #1b1b2a;
+  border-radius: 4px;
+}
+
+.kanban-drop-area::-webkit-scrollbar-thumb {
+  background-color: #aaadbd;
+  border-radius: 4px;
+  border: 1px solid #2a2a40;
+}
+
+.kanban-drop-area::-webkit-scrollbar-thumb:hover {
+  background-color: #81a1c1;
+}
+
+.kanban-card {
+  background-color: #2e2e3e; // tom mais escuro para o card
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); // sombra mais intensa pra contraste
+  cursor: grab;
+  user-select: none;
+  animation: fadeIn 0.3s ease;
+  color: #f0f0f0; // texto claro
+}
+
+.kanban-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.kanban-card-title {
+  font-weight: 650;
+  font-size: 0.8rem;
+  flex: 1 1 auto;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+
+@media (max-width: 600px) {
+  .kanban-board {
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .kanban-column {
+    min-width: auto;
+  }
+}
+
+
+@keyframes dropFlash {
+  0% {
+    background-color: #2a2a40;
+  }
+
+  50% {
+    background-color: #3b4d5c; // tom escuro azulado para dar o efeito de “destaque”
+  }
+
+  100% {
+    background-color: #2a2a40;
+  }
+}
+
+.kanban-card.drop-animate {
+  animation: dropFlash 0.5s ease forwards;
+}
+
+.kanban-header-todo {
+  color: #fff;
+  background-color: #f39c12;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Cascadia Code', monospace;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.kanban-header-doing {
+  color: #fff;
+  background-color: #3498db;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Cascadia Code', monospace;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.kanban-header-done {
+  color: #fff;
+  background-color: #2ecc71;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Cascadia Code', monospace;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.kanban-header-reviewing {
+  color: #fff;
+  background-color: #ec3232;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Cascadia Code', monospace;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.kanban-header-approved {
+  color: #fff;
+  background-color: #27c722;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Cascadia Code', monospace;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+::ng-deep .p-panel .p-panel-header {
+  padding: 0 !important;
+  border: none;
+  display: flex;
+  margin-left: 15px;
+}
+
+
+.kanban-header-icon {
+  color: #fff;
+  margin-right: 8px;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.7));
+  font-size: 1.2em;
+  vertical-align: middle;
+}
+
+
+
+.kanban-card-description {
+  max-height: 0;
+  overflow: hidden;
+  padding: 0 0.5rem;
+  color: transparent;
+  border-left: 3px solid transparent;
+  transition:
+    max-height 0.3s ease,
+    padding 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.kanban-card-description.expanded {
+  max-height: 200px;
+  padding: 0.5rem;
+  color: #e0e0e0;
+  border-left-color: #aab6f7;
+
+  background-color: #2f2f44;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  margin-top: 0.25rem;
+  transition:
+    max-height 0.3s ease,
+    padding 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.toggle-description-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  color: #ffffff;
+}
+
+.toggle-description-btn:hover {
+  background-color: #e0e0e0;
+  color: #000;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+
+.toggle-description-btn i {
+  font-size: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.toggle-description-btn:hover i {
+  transform: scale(1.2);
+}
+
+.kanban-suffix-text {
+  font-size: 0.6rem;
+  color: #888888;
+  font-weight: 300px;
+  font-style: normal;
+  user-select: none;
+}
+
+.priority-tag {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 0.3;
+  font-size: 0.20rem;
+}
+
+
+:host ::ng-deep .p-dialog {
+  background-color: #1f1f2e;
+  color: #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  border-color: #1f1f2e;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-header {
+  background: linear-gradient(to right, #262626, #393b3c);
+  color: white;
+  padding: 0.2rem;
+  justify-content: center;
+  position: relative;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-title {
+  flex: 1;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: rgb(199, 198, 198);
+  margin-left: 3rem;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-content {
+  background-color: #1f1f2e;
+  color: #d0d0d0;
+  padding: 1rem;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;empty-cells: show;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-footer {
+  background-color: #1f1f2e;
+  border-top: 1px solid #333;
+  padding: 0.5rem 1rem;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.no-margin-divider {
+  --p-divider-vertical-margin: 0;
+  --p-divider-horizontal-padding: 0;
+  --p-divider-border-color: rgba(0, 0, 0, 0.15);;
+}
+
+.task-description {
+  font-family: 'Cascadia Code', monospace;
+  overflow-y: auto;
+}
+
+
+
+::ng-deep .custom-task-tooltip {
+  max-width: 500px !important;
+  font-size: 0.85rem;
+  white-space: normal !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: inherit !important;
+}
+
+.task-header-section {
+  display: flex;
+  align-items: center; // opcional, para centralizar verticalmente
+}
+
+
+.kanban-board::-webkit-scrollbar {
+  width: 8px;
+}
+
+.kanban-board::-webkit-scrollbar-track {
+  background: #1b1b2a;
+  border-radius: 4px;
+}
+
+.kanban-board::-webkit-scrollbar-thumb {
+  background-color: #aaadbd;
+  border-radius: 4px;
+  border: 1px solid #2a2a40;
+}
+
+.kanban-board::-webkit-scrollbar-thumb:hover {
+  background-color: #81a1c1;
+}
+
+
+:host ::ng-deep .dialogdetails .p-dialog-content {
+  max-height: 68rem;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+/* Estilização do scrollbar */
+:host ::ng-deep .dialogdetails .p-dialog-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+:host ::ng-deep .dialogdetails .p-dialog-content::-webkit-scrollbar-track {
+  background: #1b1b2a;
+  border-radius: 4px;
+}
+
+:host ::ng-deep .dialogdetails .p-dialog-content::-webkit-scrollbar-thumb {
+  background-color: #aaadbd;
+  border-radius: 4px;
+  border: 1px solid #2a2a40;
+}
+
+:host ::ng-deep .dialogdetails .p-dialog-content::-webkit-scrollbar-thumb:hover {
+  background-color: #81a1c1;
+}

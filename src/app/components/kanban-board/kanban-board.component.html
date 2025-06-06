@@ -1,0 +1,98 @@
+<div class="container">
+  <div class="kanban-board">
+    <div class="kanban-column" *ngFor="let status of statuses">
+      <p-panel class="kanban-dark">
+        <ng-template pTemplate="header">
+          <p [ngClass]="'kanban-header-' + status.key">
+            <i [class]="getIconForStatus(status.key) + ' kanban-header-icon'"></i>
+            {{ status.label }}
+          </p>
+        </ng-template>
+
+        <div cdkDropList [cdkDropListData]="tasks[status.key]" [cdkDropListConnectedTo]="connectedDropListsIds"
+          class="kanban-drop-area" [id]="status.key" (cdkDropListDropped)="onDrop($event)">
+          <div *ngFor="let task of tasks[status.key]" cdkDrag class="kanban-card" [attr.data-task-id]="task.id"
+            (click)="openTaskDialog(task)">
+            <!-- Cabeçalho do cartão -->
+            <div class="kanban-card-header">
+              <span class="kanban-card-title">{{ task.title }}</span>
+
+              <div style="display: flex; align-items: center; gap: 0.1rem;">
+
+                <p-tag [severity]="getPrioritySeverity(task.priority)" [value]=" task.priority" class="priority-tag"
+                  [rounded]="true"></p-tag>
+
+                <button class="toggle-description-btn"
+                  (click)="task.expanded = !task.expanded; $event.stopPropagation()"
+                  [attr.aria-label]="task.expanded ? 'Fechar descrição' : 'Abrir descrição'">
+                  <i class="pi" [ngClass]="task.expanded ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+                </button>
+
+
+              </div>
+            </div>
+
+            <!-- Descrição com transição -->
+            <div class="kanban-card-description" [class.expanded]="task.expanded">
+              {{ task.expanded ? (task.description | slice:0:100) + (task.description.length > 100 ? '...' : '') : '' }}
+            </div>
+
+            <!-- Rodapé com sufixo -->
+            <div class="kanban-card-footer" style="text-align: right; margin-top: 0.5rem;">
+              <span class="kanban-suffix-text">{{ task.suffix }}</span>
+            </div>
+          </div>
+        </div>
+      </p-panel>
+    </div>
+  </div>
+</div>
+
+
+<p-dialog class="dialogdetails" [(visible)]="selectedTaskDialogVisible" [modal]="true" header="Detalhes do Card"
+  [style]="{ width: '55rem', height: '55rem' }">
+
+  <ng-container *ngIf="selectedTask">
+
+    <h3>{{ selectedTask.title }}</h3>
+
+    <div class="task-header-section">
+      <p-tag [style]="{ 'background-color': getStatusColorByTaskId(selectedTask.id), color: '#fff' }"
+        value="{{ getStatusLabelByTaskId(selectedTask.id) }} |" rounded></p-tag>
+
+      <i #infoIcon class="pi pi-info-circle" style="font-size: 1.2rem; color: #555; cursor: pointer; margin-left: auto;"
+        tabindex="0" aria-label="Informações da tarefa" [pTooltip]="informacaoTask" tooltipPosition="left"
+        [appendTo]="'body'" [tooltipStyleClass]="'custom-task-tooltip'">
+      </i>
+
+
+      <ng-template #informacaoTask>
+        <div class="flex items-center" style="max-width: 20rem; font-size: 0.70rem;">
+          <div>
+            <div><strong>Criado em:</strong> {{ selectedTask.createdAt | date: 'dd/MM/yyyy HH:mm' }}</div>
+            <div><strong>Criado por:</strong> {{ selectedTask.createdBy }}</div>
+            <div><strong>Movimentações:</strong></div>
+            <ul style="margin: 0; padding-left: 1rem;">
+              <li *ngFor="let m of selectedTask?.movements">
+                De <em>{{ getStatusLabel(m.from) }}</em> para <em>{{ getStatusLabel(m.to) }}</em> em
+                {{ m.date | date: 'dd/MM/yyyy HH:mm' }} por {{m.author}}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </ng-template>
+
+    </div>
+
+    <!-- Descrição -->
+    <p class="task-description">
+      {{ selectedTask.description }}
+    </p>
+
+    <!-- Comentários -->
+    <app-comments-section [comments]="selectedTask.comments || []" [author]="'Gabriel Matheus'"
+      (commentAdded)="handleNewComment($event)">
+    </app-comments-section>
+
+  </ng-container>
+</p-dialog>
