@@ -186,7 +186,6 @@ input[pInputText]:focus{
   color: #fff;
 }
 
-/* Ícone olho - cor clara */
 :host ::ng-deep .p-password-mask-icon,
 :host ::ng-deep .p-password-unmask-icon {
   color: #ccc;
@@ -200,7 +199,6 @@ input[pInputText]:focus{
   color: #eee;
 }
 
-/* Remove medidor de força só por garantia */
 :host ::ng-deep .p-password-meter {
   display: none !important;
 }

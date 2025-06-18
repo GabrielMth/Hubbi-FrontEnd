@@ -298,8 +298,7 @@
           <p-button label="-> WhatsApp" icon="pi pi-whatsapp" [raised]="true"
             (onClick)="enviarParaWhatsApp()"></p-button>
           <p-button label="Usuários" icon="pi pi-user" [raised]="true" (onClick)="abrirUsuariosCliente()"></p-button>
-          <p-button label="Salvar Edição" icon="pi pi-pencil" [raised]="true"
-            (onClick)="confirmarEdicao($event, form)" />
+          <p-button label="Salvar" icon="pi pi-pencil" [raised]="true" (onClick)="confirmarEdicao($event, form)" />
         </div>
       </ng-template>
     </p-dialog>
@@ -309,7 +308,7 @@
 
 
   <p-dialog [(visible)]="visibleDialogUsers" [modal]="true" header="Usuários do Cliente"
-    [style]="{ width: '45rem', height: '47rem' }" [breakpoints]="{ '960px': '95vw'}">
+    [style]="{ width: '67rem', height: '55rem' }" [breakpoints]="{ '960px': '95vw'}">
 
     <div class="input-row">
       <p-inputgroup>
@@ -333,19 +332,35 @@
 
         <ng-template pTemplate="header">
           <tr>
-            <th pSortableColumn="nome" style="width:25%">Nome <p-sortIcon field="nome" /></th>
-            <th style="width:25%">Username</th>
-            <th style="width:25%">Perfil</th>
-            <th style="width:25%">E-mail</th>
+            <th style="width:20%">Último Login</th>
+            <th pSortableColumn="nome" style="width:20%">Nome <p-sortIcon field="nome" /></th>
+            <th style="width:15%">Username</th>
+            <th style="width:10%">Perfil</th>
+            <th style="width:20%">E-mail</th>
+            <th style="width:5%"></th>
           </tr>
         </ng-template>
 
         <ng-template pTemplate="body" let-usuario>
           <tr>
+            <td>
+              <span *ngIf="usuario.ultimoLogin">
+                <i [ngClass]="getBolinhaClass(usuario.ultimoLogin)" class="bolinha"></i>
+                <span class="data-login">{{ usuario.ultimoLogin | date:'dd/MM/yyyy HH:mm' }}</span>
+              </span>
+            </td>
             <td>{{ usuario.nome }}</td>
             <td>{{ usuario.username }}</td>
-            <td>{{ usuario.role }}</td>
+            <td>
+              <p-tag [value]="usuario.role" [severity]="getRoleSeverity(usuario.role)" styleClass="capitalize">
+              </p-tag>
+            </td>
             <td>{{ usuario.email }}</td>
+            <td>
+              <button pButton icon="pi pi-trash" class="btn-sm-icon p-button-danger p-button-text"
+                (click)="abrirConfirmacaoExclusao(usuario)">
+              </button>
+            </td>
           </tr>
         </ng-template>
       </p-table>
@@ -355,8 +370,139 @@
     </div>
 
     <ng-template #footer>
-      <p-button label="Novo Usuário" [raised]="true" severity="secondary" />
-      <p-button label="Apagar" [raised]="true" severity="secondary" />
+      <p-button icon="pi pi-sync" label="Recarregar Lista" [raised]="true" severity="primary" (onClick)="carregarUsuariosLazy({})" />
+      <p-button icon="pi pi-user-plus" label="Usuário" [raised]="true" severity="secondary" (onClick)="abrirCadastroUsuario()" />
+    </ng-template>
+  </p-dialog>
+
+
+
+  <p-dialog [(visible)]="visibleDialogNewUsers" [modal]="true" header="Cadastrar Usuário"
+    [style]="{ width: '35rem', height: '40rem' }" (onHide)="fecharCadastroUsuario()">
+
+    <form #formUserCadastro="ngForm" autocomplete="off">
+      <div class="input-row">
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-address-book"></i>
+          </p-inputgroup-addon>
+          <p-iftalabel>
+            <input pInputText id="nomeusuario" class="inputuseropen1-dialog" [(ngModel)]="usuarioFormulario.nome"
+              name="nomeusuario" #nomeusuarioControl="ngModel" required minlength="5" />
+            <label for="nomeusuario">Nome</label>
+          </p-iftalabel>
+        </p-inputgroup>
+        <app-message-valid-forms [control]="nomeusuarioControl" text="Nome é obrigatório"
+          error="required"></app-message-valid-forms>
+
+        <app-message-valid-forms [control]="nomeusuarioControl" text="Informe um nome com pelo menos 5 caracteres"
+          error="minlength"></app-message-valid-forms>
+      </div>
+
+      <div class="input-row">
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-user"></i>
+          </p-inputgroup-addon>
+          <p-iftalabel>
+            <input pInputText id="username" class="inputuseropen1-dialog" [(ngModel)]="usuarioFormulario.username"
+              name="username" #usernameControl="ngModel" required minlength="5" />
+            <label for="nomeusuario">Username</label>
+          </p-iftalabel>
+        </p-inputgroup>
+        <app-message-valid-forms [control]="usernameControl" text="Username é obrigatório"
+          error="required"></app-message-valid-forms>
+
+        <app-message-valid-forms [control]="usernameControl" text="Informe um nome com pelo menos 5 caracteres"
+          error="minlength"></app-message-valid-forms>
+      </div>
+
+      <div class="input-row">
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-envelope"></i>
+          </p-inputgroup-addon>
+
+          <p-iftalabel>
+            <input pInputText type="email" id="emailUser" name="emailUser" autocomplete="off" required
+              class="inputuseropen1-dialog" maxlength="50" [(ngModel)]="usuarioFormulario.email"
+              #emailUserControl="ngModel" email />
+            <label for="emailUser">E-mail</label>
+          </p-iftalabel>
+        </p-inputgroup>
+
+        <app-message-valid-forms [control]="emailUserControl" text="E-mail é obrigatório"
+          error="required"></app-message-valid-forms>
+
+        <app-message-valid-forms [control]="emailUserControl" text="Informe um e-mail válido"
+          error="email"></app-message-valid-forms>
+
+      </div>
+
+      <div class="input-row">
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-shield"></i>
+          </p-inputgroup-addon>
+
+          <p-dropdown inputId="role" name="role" [options]="roles" optionLabel="label" optionValue="value"
+            [(ngModel)]="usuarioFormulario.role" #roleControl="ngModel" required
+            placeholder="Selecione o perfil"></p-dropdown>
+        </p-inputgroup>
+
+        <app-message-valid-forms [control]="roleControl" text="Perfil é obrigatório"
+          error="required"></app-message-valid-forms>
+      </div>
+
+    </form>
+
+
+
+    <ng-template #footer>
+      <p-button label="Confirmar" [raised]="true" severity="secondary" (onClick)="cadastrarUsuario()" />
+      <p-button label="Cancelar" [raised]="true" severity="secondary" (onClick)="fecharCadastroUsuario()" />
+    </ng-template>
+  </p-dialog>
+
+
+  <p-dialog [(visible)]="visibleDialogUserDetails" [modal]="true" header="Usuário Criado" [style]="{ width: '35rem' }">
+
+    <ng-container *ngIf="usuarioCriado">
+      <p><strong>Nome: </strong> {{ usuarioCriado.nome }}</p>
+      <p><strong>Username: </strong> {{ usuarioCriado.username }}</p>
+      <p><strong>E-mail: </strong> {{ usuarioCriado.email }}</p>
+      <p><strong>Perfil: </strong> {{ usuarioCriado.role }}</p>
+      <p><strong>Senha gerada: </strong> <span style="color: red; font-weight: bold; font-size: x-large;">{{
+          usuarioCriado.senhaGerada }}</span></p>
+
+      <p style="margin-top: 1rem; font-style: italic;">
+        Uma senha aleatória foi gerada. Informe a pessoa para realizar a troca nas configurações de perfil.
+      </p>
+    </ng-container>
+
+    <ng-template #footer>
+      <p-button label="Fechar" (onClick)="fecharDetalhesUsuario($event)" />
+    </ng-template>
+  </p-dialog>
+
+
+
+  <p-dialog [(visible)]="visibleDialogConfirmExclusao" [modal]="true" header="Confirmação de Exclusão"
+    [style]="{ width: '30rem' }">
+
+    <ng-container *ngIf="usuarioSelecionadoParaExcluir">
+      <p>
+        Tem certeza que deseja <strong>excluir</strong> o usuário:
+      </p>
+      <p style="margin-top: 0.5rem;">
+        <strong>Nome: </strong> {{ usuarioSelecionadoParaExcluir.nome }}<br />
+        <strong>Username: </strong> {{ usuarioSelecionadoParaExcluir.username }}
+      </p>
+    </ng-container>
+
+    <ng-template #footer>
+      <p-button label="Cancelar" icon="pi pi-times" severity="secondary" (onClick)="cancelarExclusaoUsuario()" />
+      <p-button label="Excluir" icon="pi pi-trash" severity="danger" (onClick)="confirmarExclusaoUsuarioConfirmado()" />
     </ng-template>
   </p-dialog>
 

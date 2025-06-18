@@ -2,7 +2,7 @@
   <p-confirmDialog></p-confirmDialog>
   <p-toast></p-toast>
   <p-dialog [(visible)]="visibleDialogNewClient" [modal]="true" header="Cadastro de Cliente"
-    [style]="{ width: '40rem', height: '45rem' }" (onHide)="fecharDialogCadastro(form)">
+    [style]="{ width: '40rem', height: '47rem' }" (onHide)="fecharDialogCadastro(form)">
     <p-divider type="dotted" />
 
     <form #form="ngForm" autocomplete="off">
@@ -11,11 +11,11 @@
           <p-inputgroup-addon>
             <i class="pi pi-user"></i>
           </p-inputgroup-addon>
-          <p-floatlabel variant="on">
-            <input pInputText id="nome" autocomplete="off" maxlength="50" minlength="5" name="nome" required
+          <p-iftalabel variant="on">
+            <input pInputText id="nome" autocomplete="off" maxlength="50" minlength="5" name="nome" required class="inputuseropen1-dialog"
               [(ngModel)]="clienteFormulario.nome" #nomeControl="ngModel" />
             <label for="nome">Nome</label>
-          </p-floatlabel>
+          </p-iftalabel>
         </p-inputgroup>
         <app-message-valid-forms [control]="nomeControl" text="O nome é obrigatório"
           error="required"></app-message-valid-forms>

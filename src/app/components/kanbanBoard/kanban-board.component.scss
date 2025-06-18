@@ -22,7 +22,7 @@
 
 .kanban-drop-area {
   min-height: 500px;
-  max-height: calc(100vh - 14rem); /* Ajuste conforme necessário */
+  max-height: calc(100vh - 14rem);
   overflow-y: auto;
 
   background-color: #2a2a40;
@@ -55,14 +55,14 @@
 }
 
 .kanban-card {
-  background-color: #2e2e3e; // tom mais escuro para o card
+  background-color: #2e2e3e;
   border-radius: 10px;
   padding: 1rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); // sombra mais intensa pra contraste
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   cursor: grab;
   user-select: none;
   animation: fadeIn 0.3s ease;
-  color: #f0f0f0; // texto claro
+  color: #f0f0f0;
 }
 
 .kanban-card-header {
@@ -100,7 +100,7 @@
   }
 
   50% {
-    background-color: #3b4d5c; // tom escuro azulado para dar o efeito de “destaque”
+    background-color: #3b4d5c;
   }
 
   100% {
@@ -316,7 +316,7 @@
 
 .task-header-section {
   display: flex;
-  align-items: center; // opcional, para centralizar verticalmente
+  align-items: center;
 }
 
 

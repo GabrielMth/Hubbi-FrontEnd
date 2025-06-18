@@ -9,11 +9,15 @@ export class NavbarService {
   constructor(private router: Router) { }
 
 
-   goToKanban() {
+  goToKanban() {
     this.router.navigate(['/kanban']);
   }
 
   goToClientes() {
-  this.router.navigate(['/clientes']);
-}
+    this.router.navigate(['/clientes']);
+  }
+
+  gotoTasks() {
+    this.router.navigate(['/tasks']);
+  }
 }

@@ -13,13 +13,14 @@ import { Message } from 'primeng/message';
 
 
 import { SharedFormModule } from '../../sharedmodules/shared-form.module';
-import { NewclienteComponent } from '../NewClient/newcliente.component'
+import { NewclienteComponent } from '../newClient/newcliente.component'
 import { ClienteService } from '../../services/cliente.service';
 import { Cliente } from '../../models/cliente.model';
 import { Usuario } from '../../models/usuario.model';
 import { CepService } from '../../services/cep.service';
-import { MessagesValidFormsComponent } from '../MessagesValidForms/messages-valid-forms.component';
+import { MessagesValidFormsComponent } from '../messagesValidForms/messages-valid-forms.component';
 import { UsuarioService } from '../../services/usuario.service';
+import { UsuarioCreateDTO } from '../../dtos/usuario.dto';
 
 
 @Component({
@@ -29,7 +30,7 @@ import { UsuarioService } from '../../services/usuario.service';
     MessagesValidFormsComponent, Message],
   templateUrl: './clientestable.component.html',
   styleUrl: './clientestable.component.scss',
-  providers: [ConfirmationService, MessageService, CepService, ClienteService, UsuarioService],
+  providers: [ConfirmationService, MessageService],
 })
 export class ClientesTableComponent {
   constructor(
@@ -41,15 +42,21 @@ export class ClientesTableComponent {
   ) { }
 
   @ViewChild('form') form!: NgForm;
+  @ViewChild('formUserCadastro') formUserCadastro!: NgForm;
 
   filtroBuscar: string = '';
   ativarDesativarCliente: boolean = false;
   visibleDialogUsers: boolean = false;
   visibleDialogDetails: boolean = false;
   dialogCadastroCliente: boolean = false;
+  visibleDialogNewUsers: boolean = false;
+  visibleDialogUserDetails: boolean = false;
+  visibleDialogConfirmExclusao = false;
+
   naoEncontrado: boolean = false;
 
   isPessoaJuridica: boolean | null = null;
+  usuarioSelecionadoParaExcluir: any = null;
   cnpjInvalido: boolean | null = null;
   cpfInvalido: boolean | null = null;
   cepInvalido: boolean | null = null;
@@ -65,6 +72,7 @@ export class ClientesTableComponent {
   totalRegistros: number = 0;
   carregando: boolean = false;
   carregandoUsuarios: boolean = false;
+  usuarioCriado?: any;
 
   clienteSelecionado: Cliente = {
     nome: '',
@@ -81,6 +89,7 @@ export class ClientesTableComponent {
     telefone: '',
     ativo: false
   };
+
 
   carregarClientes(event: any): void {
     this.ultimaPaginacao = event;
@@ -245,15 +254,9 @@ export class ClientesTableComponent {
     this.cnpjInvalido = false;
   }
 
-  abrirCadastroCliente() {
-    this.dialogCadastroCliente = true;
-  }
-
   fecharCadastroCliente() {
     this.dialogCadastroCliente = false;
   }
-
-
 
   abrirUsuariosCliente(): void {
     if (!this.clienteSelecionado?.id) {
@@ -507,7 +510,162 @@ export class ClientesTableComponent {
   }
 
 
+  getBolinhaClass(ultimoLogin: string): string {
+    const loginTime = new Date(ultimoLogin).getTime();
+    const now = Date.now();
+
+    const diffInMinutes = (now - loginTime) / (1000 * 60);
+    const diffInDays = (now - loginTime) / (1000 * 60 * 60 * 24);
+
+    if (diffInMinutes <= 30) {
+      return 'bolinha-verde';
+    } else if (diffInDays <= 3) {
+      return 'bolinha-azul';
+    } else {
+      return 'bolinha-vermelha';
+    }
+  }
+
+  getRoleSeverity(role: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
+    switch (role.toUpperCase()) {
+      case '[ADMIN]':
+        return 'danger';
+      case '[COLABORADOR]':
+        return 'secondary';
+      case '[GERENTE]':
+        return 'warn';
+      default:
+        return 'info';
+    }
+  }
+
+
+  abrirCadastroCliente() {
+    this.dialogCadastroCliente = true;
+  }
+
+  usuarioFormulario: UsuarioCreateDTO = {
+    nome: '',
+    username: '',
+    email: '',
+    role: ''
+  };
+
+  roles = [
+    { label: 'Colaborador', value: 'COLABORADOR' },
+    { label: 'Gerente', value: 'GERENTE' }
+  ];
+
+
+  abrirCadastroUsuario() {
+    this.visibleDialogNewUsers = true;
+  }
+
+  fecharCadastroUsuario() {
+    this.visibleDialogNewUsers = false;
+    this.usuarioFormulario = {
+      nome: '',
+      username: '',
+      email: '',
+      role: ''
+    };
+    this.formUserCadastro.resetForm();
+  }
+
+  cadastrarUsuario(): void {
+    if (this.formUserCadastro.invalid) {
+      this.formUserCadastro.form.markAllAsTouched();
+      return;
+    }
+
+    if (!this.clienteSelecionado?.id) {
+      this.messageService.add({ severity: 'warn', summary: 'Cliente não selecionado.' });
+      return;
+    }
+
+    this.usuarioService.criarUsuarioNoCliente(this.clienteSelecionado.id, this.usuarioFormulario)
+      .subscribe({
+        next: (res) => {
+          this.usuarioCriado = res;
+          this.fecharCadastroUsuario();
+          this.visibleDialogUserDetails = true;
+        },
+        error: (err) => {
+          const mensagemErro = err?.error?.erro || 'Erro ao criar usuário.';
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: mensagemErro,
+            life: 5000
+          });
+        }
+      });
+  }
+
+  fecharDetalhesUsuario(event: Event): void {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Você tem certeza que deseja fechar essa tela?',
+      icon: 'pi pi-exclamation-triangle',
+      rejectButtonProps: {
+        label: 'Cancelar',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptButtonProps: {
+        label: 'Sim'
+      },
+      accept: () => {
+        this.carregarUsuariosLazy({});
+        this.usuarioCriado = undefined;
+        this.visibleDialogUserDetails = false;
+      },
+      reject: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Ação cancelada',
+          detail: 'As informações continuarão visíveis.',
+          life: 3000
+        });
+      }
+    });
+  }
+
+
+  abrirConfirmacaoExclusao(usuario: any): void {
+    this.usuarioSelecionadoParaExcluir = usuario;
+    this.visibleDialogConfirmExclusao = true;
+  }
+
+
+  cancelarExclusaoUsuario(): void {
+    this.visibleDialogConfirmExclusao = false;
+    this.usuarioSelecionadoParaExcluir = null;
+  }
+
+
+  confirmarExclusaoUsuarioConfirmado(): void {
+    const id = this.usuarioSelecionadoParaExcluir.id;
+    this.visibleDialogConfirmExclusao = false;
+
+    this.usuarioService.excluirUsuario(id).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Usuário excluído com sucesso' });
+        this.carregarUsuariosLazy(this.ultimaPaginacao);
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Erro ao excluir usuário' });
+      }
+    });
+  }
+
 }
+
+
+
+
+
+
 
 
 

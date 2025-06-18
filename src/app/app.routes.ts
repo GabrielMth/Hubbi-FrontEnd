@@ -5,20 +5,27 @@ export const routes: Routes = [
   {
     path: 'clientes',
     loadComponent: () =>
-      import('./components/ClientsTable/clientestable.component').then(m => m.ClientesTableComponent),
+      import('./components/clientesTable/clientestable.component').then(m => m.ClientesTableComponent),
     canActivate: [AuthGuard],
     data: { roles: ['ADMIN'] }
   },
   {
     path: 'kanban',
     loadComponent: () =>
-      import('./components/kanban-board/kanban-board.component').then(m => m.KanbanBoardComponent),
+      import('./components/kanbanBoard/kanban-board.component').then(m => m.KanbanBoardComponent),
     canActivate: [AuthGuard]
   },
   {
     path: 'login',
     loadComponent: () =>
-      import('./components/Login/login.component').then(m => m.LoginComponent)
+      import('./components/login/login.component').then(m => m.LoginComponent)
+  },
+  {
+    path: 'tasks',
+    loadComponent: () =>
+      import('./components/newTask/newtask.component').then(m => m.NewtaskComponent),
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN'] }
   },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'kanban' }

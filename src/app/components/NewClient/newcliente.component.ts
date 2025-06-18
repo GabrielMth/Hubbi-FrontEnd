@@ -3,7 +3,6 @@ import { InputIconModule } from 'primeng/inputicon';
 import { NgForm } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { IftaLabelModule } from 'primeng/iftalabel';
-import { FloatLabel } from 'primeng/floatlabel';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
@@ -11,8 +10,8 @@ import { Message } from 'primeng/message';
 import { SharedFormModule } from '../../sharedmodules/shared-form.module';
 
 
-import { MessagesValidFormsComponent } from '../MessagesValidForms/messages-valid-forms.component';
-import { ClientinfoComponent } from '../NewClientDetails/clientinfo.component'
+import { MessagesValidFormsComponent } from '../messagesValidForms/messages-valid-forms.component';
+import { ClientinfoComponent } from '../newClientDetalhes/clientinfo.component'
 import { CepService } from '../../services/cep.service';
 import { ClienteService } from '../../services/cliente.service';
 import { Cliente } from '../../models/cliente.model';
@@ -21,7 +20,7 @@ import { Cliente } from '../../models/cliente.model';
 
 @Component({
   selector: 'app-newcliente',
-  imports: [FloatLabel, IftaLabelModule, Dialog, InputIconModule,
+  imports: [IftaLabelModule, Dialog, InputIconModule,
     ConfirmDialog, ToastModule, ClientinfoComponent,
     MessagesValidFormsComponent, Message, SharedFormModule],
   templateUrl: './newcliente.component.html',

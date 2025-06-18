@@ -10,9 +10,11 @@ import { TagModule } from 'primeng/tag';
 import { NavbarService } from '../../services/navbar.service';
 import { AuthService } from '../../auth.service';
 
+import { PasswordSettingsComponent } from '../atualizarSenha/passwordsettings.component';
+
 @Component({
   selector: 'navbar',
-  imports: [MenubarModule, ButtonModule, AvatarModule, ToastModule, CommonModule, MenuModule, TagModule],
+  imports: [MenubarModule, ButtonModule, AvatarModule, ToastModule, CommonModule, MenuModule, TagModule, PasswordSettingsComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
@@ -27,6 +29,8 @@ export class NavbarComponent implements OnInit {
   itemsLogout: MenuItem[] | undefined;
   isAdmin = false;
   nomeUsuario: string | null = '';
+
+  visibleDialogSenha: boolean = false;
 
   ngOnInit() {
     const roles = this.authService.getUserRoles();
@@ -53,7 +57,7 @@ export class NavbarComponent implements OnInit {
     if (this.isAdmin) {
       this.items.push({
         label: 'Task',
-        command: () => this.navbarService.goToClientes(),
+        command: () => this.navbarService.gotoTasks(),
         icon: 'pi pi-ticket'
       });
     }
@@ -61,7 +65,8 @@ export class NavbarComponent implements OnInit {
     this.itemsLogout = [
       {
         label: 'Trocar senha',
-        icon: 'pi pi-cog'
+        icon: 'pi pi-cog',
+        command: () => this.visibleDialogSenha = true
       },
       {
         label: 'Deslogar',

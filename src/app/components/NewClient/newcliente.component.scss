@@ -4,8 +4,12 @@
   padding: 0.2rem;
   justify-content: center;
   position: relative;
-  border-radius: 10px;
+  border-top-left-radius: 9px;
+  border-top-right-radius: 9px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
 }
+
 
 :host ::ng-deep .p-dialog {
   border-top: #262626;
@@ -31,9 +35,28 @@
   gap: 1rem;
 }
 
-//inputs cadastro cliente
+
 .input-row {
   margin-bottom: 1rem;
+
+  ::ng-deep .p-floatlabel input {
+    background-color: #2a2a40;
+    color: #f0f0f0;
+  }
+
+  ::ng-deep .p-floatlabel label {
+    color: #000000;
+  }
+
+   ::ng-deep .p-inputgroup-addon {
+    background-color: #2a2a40;
+  }
+
+}
+
+.inputuseropen1-dialog {
+  background-color: #2a2a40 !important;
+  color: #f0f0f0;
 }
 
 .two-columns {
@@ -43,28 +66,27 @@
   .input-col {
     flex: 1;
 
-    // Corrige a largura dos campos com inputgroup + inputmask
     ::ng-deep p-inputgroup {
       display: flex;
       width: 100%;
 
-      // Corrige p-iftalabel dentro do inputgroup
       p-iftalabel {
         flex: 1;
         display: block;
 
-        // Garante que os inputs ocupem toda a largura
         ::ng-deep p-inputmask,
         ::ng-deep input {
           width: 100% !important;
-          display: block;
-          border-bottom-left-radius: 0;
-          border-top-left-radius: 0;
+          background-color: #2a2a40;
+          color: #f0f0f0;
+          border-top-left-radius: 0px;
+          border-bottom-left-radius: 0px;
         }
       }
     }
   }
 }
+
 
 .cupom-cliente {
   background-color: #fffde7;

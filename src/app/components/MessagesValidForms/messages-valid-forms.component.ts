@@ -23,8 +23,12 @@ export class MessagesValidFormsComponent {
   @Input() error?: string;
   @Input() control?: NgModel;
   @Input() text?: string;
+  @Input() visible?: boolean;
 
   temErro(): boolean {
+    if (this.visible !== undefined) {
+      return this.visible;
+    }
     return this.control?.errors?.[this.error!] && this.control?.touched;
   }
 

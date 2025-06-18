@@ -31,7 +31,7 @@ export class LoginComponent {
       next: (response) => {
       },
       error: (error) => {
-        // Verifica se o erro é 401 (Unauthorized)
+
         const mensagem = error.status === 401
           ? (error.error && error.error[0] && error.error[0].mensagemUsuario) || 'Credenciais incorretas'
           : 'Aplicação Offline';

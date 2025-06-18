@@ -1,0 +1,112 @@
+<div class="container">
+  <div class="grid p-fluid">
+    <!-- FORMULÁRIO DE CRIAÇÃO DE TASK -->
+    <div class="col-12 md:col-5">
+      <p-card class="cardlancartask" header="Designar tarefas para um cliente">
+        <p-divider></p-divider>
+
+        <div class="colunainputs">
+          <p style="margin-bottom: 3px; margin-top: 0px;">Selecione o cliente ou pesquise pelo nome</p>
+          <p-autocomplete class="autocompletedark" [(ngModel)]="clienteSelecionado" [suggestions]="clientesFiltrados"
+            (completeMethod)="filtrarClientes($event)" placeholder="Selecione" [dropdown]="true" field="nome">
+          </p-autocomplete>
+        </div>
+
+        <div class="colunainputs" style="margin-right: 50%; margin-top: 15px;">
+          <label for="titulo">Título da Tarefa</label>
+          <input autocomplete="off" class="inputs" id="titulo" type="text" pInputText [(ngModel)]="novaTask.titulo" required minlength="5"
+            maxlength="80" />
+        </div>
+
+        <div class="colunainputs" style="margin-top: 1%; width: 100%;">
+          <p-floatlabel variant="in" style="width: 100%;">
+            <textarea pTextarea id="in_label" class="textarea-expand" rows="6" style="resize: none;"></textarea>
+            <label for="in_label">Descrição</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="linhainputs" style="margin-top: 1%;">
+          <div class="input-bloco">
+            <label for="prioridade">Prioridade</label>
+            <p-autoComplete class="autocompletedark" inputId="prioridade" [(ngModel)]="novaTask.prioridade"
+              [suggestions]="propriedadesFiltradas" (completeMethod)="filtrarPrioridades($event)" [dropdown]="true"
+              field="label" [forceSelection]="true" placeholder="Selecione">
+
+              <!-- Template da lista de sugestões -->
+              <ng-template let-option pTemplate="item">
+                <p-tag [value]="option.label" [severity]="option.severity"></p-tag>
+              </ng-template>
+
+              <!-- Template do item selecionado -->
+              <ng-template let-selected pTemplate="selectedItem">
+                <p-tag [value]="selected.label" [severity]="selected.severity"></p-tag>
+              </ng-template>
+
+            </p-autoComplete>
+          </div>
+
+
+          <div class="input-bloco">
+            <label for="status">Status</label>
+            <p-autoComplete class="autocompletedark" inputId="status" [(ngModel)]="novaTask.status"
+              [suggestions]="statusFiltrados" (completeMethod)="filtrarStatus($event)" [dropdown]="true"
+              [forceSelection]="true" placeholder="Selecione">
+            </p-autoComplete>
+          </div>
+
+
+          <div class="input-bloco">
+            <div>
+              <p-button label="Mídia" icon="pi pi-file" severity="info"></p-button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: right;">
+          <p-button label="Criar Task" icon="pi pi-check" (onClick)="criarTask()" severity="info"></p-button>
+        </div>
+
+      </p-card>
+    </div>
+
+    <!-- LISTAGEM DE TASKS -->
+    <div class="col-12 md:col-7" style="margin-top: 2px;">
+      <p-card class="cardlancartask" header="Tasks do Cliente">
+        <div class="field">
+          <label for="filtroCliente">Filtrar por Cliente</label>
+          <p-dropdown [options]="clientes" optionLabel="nome" [(ngModel)]="clienteFiltro"
+            placeholder="Selecione um cliente" inputId="filtroCliente"></p-dropdown>
+        </div>
+
+        <p-table [value]="tasksFiltradas" [paginator]="true" [rows]="5" *ngIf="clienteFiltro" responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Título</th>
+              <th>Prioridade</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-task>
+            <tr>
+              <td>{{ task.titulo }}</td>
+              <td>
+
+              </td>
+              <td>
+
+              </td>
+              <td>
+                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text"></button>
+                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text"></button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+        <p-message *ngIf="!clienteFiltro" severity="info"
+          text="Selecione um cliente para visualizar as tasks."></p-message>
+      </p-card>
+    </div>
+  </div>
+</div>

@@ -365,3 +365,53 @@
   --p-divider-horizontal-padding: 0;
   --p-divider-border-color: rgba(182, 176, 176, 0.15);
 }
+
+
+
+.bolinha {
+  font-size: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 5px;
+  display: inline-block;
+}
+
+
+.bolinha-verde {
+  background-color: #00ff00;
+  box-shadow: 0 0 8px #00ff00, 0 0 10px #00ff00, 0 0 15px #00ff00;
+}
+
+
+.bolinha-azul {
+  background-color: #03e6f7;
+  box-shadow: 0 0 8px #03e6f7, 0 0 10px #03e6f7, 0 0 15px #03e6f7;
+}
+
+.bolinha-vermelha {
+  background-color: #fc0000;
+  box-shadow: 0 0 8px #ff0000, 0 0 10px #ff0000, 0 0 15px #ff0000;
+}
+
+.data-login {
+  font-size: small;
+  font-family: 'Cascadia Code', monospace;
+}
+
+
+
+.btn-sm-icon {
+  width: 1.8rem;
+  height: 1.8rem;
+  padding: 0;
+  font-size: 0.75rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .pi {
+    font-size: 0.75rem;
+  }
+}

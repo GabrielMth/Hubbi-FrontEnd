@@ -1,8 +1,6 @@
-export interface Usuario {
-  id: number;
+export interface UsuarioCreateDTO {
   nome: string;
   username: string;
   email: string;
   role: string;
-  ultimoLogin: string;
 }

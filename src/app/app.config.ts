@@ -7,7 +7,6 @@ import { provideEnvironmentNgxCurrency, NgxCurrencyInputMode } from 'ngx-currenc
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { AuthGuard } from './auth.guard';
 import { authInterceptor } from './auth.interceptor';
-import { inject } from '@angular/core';
 
 import { routes } from './app.routes';
 
