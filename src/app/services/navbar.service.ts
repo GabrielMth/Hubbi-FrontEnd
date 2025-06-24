@@ -20,4 +20,8 @@ export class NavbarService {
   gotoTasks() {
     this.router.navigate(['/tasks']);
   }
+
+  goToHome() {
+    this.router.navigate(['/home']);
+  }
 }

@@ -1,69 +1,115 @@
 <div class="container">
+  <p-toast></p-toast>
   <div class="grid p-fluid">
     <!-- FORMULÁRIO DE CRIAÇÃO DE TASK -->
     <div class="col-12 md:col-5">
       <p-card class="cardlancartask" header="Designar tarefas para um cliente">
         <p-divider></p-divider>
 
-        <div class="colunainputs">
-          <p style="margin-bottom: 3px; margin-top: 0px;">Selecione o cliente ou pesquise pelo nome</p>
-          <p-autocomplete class="autocompletedark" [(ngModel)]="clienteSelecionado" [suggestions]="clientesFiltrados"
-            (completeMethod)="filtrarClientes($event)" placeholder="Selecione" [dropdown]="true" field="nome">
-          </p-autocomplete>
-        </div>
+        <form #formTask="ngForm" autocomplete="off">
+          <div class="colunainputs">
+            <p style="margin-bottom: 3px; margin-top: 0px;">Selecione ou pesquise o cliente pelo nome </p>
 
-        <div class="colunainputs" style="margin-right: 50%; margin-top: 15px;">
-          <label for="titulo">Título da Tarefa</label>
-          <input autocomplete="off" class="inputs" id="titulo" type="text" pInputText [(ngModel)]="novaTask.titulo" required minlength="5"
-            maxlength="80" />
-        </div>
+            <p-autocomplete class="autocompletedark" [(ngModel)]="clienteSelecionadoDropDownTask"
+              [suggestions]="clientesFiltrados" (completeMethod)="filtrarClientes($event)" placeholder="Selecione"
+              [dropdown]="true" field="nome" name="clienteSelecionadoDropDownTask" required="true"
+              #clienteControl="ngModel">
 
-        <div class="colunainputs" style="margin-top: 1%; width: 100%;">
-          <p-floatlabel variant="in" style="width: 100%;">
-            <textarea pTextarea id="in_label" class="textarea-expand" rows="6" style="resize: none;"></textarea>
-            <label for="in_label">Descrição</label>
-          </p-floatlabel>
-        </div>
-
-        <div class="linhainputs" style="margin-top: 1%;">
-          <div class="input-bloco">
-            <label for="prioridade">Prioridade</label>
-            <p-autoComplete class="autocompletedark" inputId="prioridade" [(ngModel)]="novaTask.prioridade"
-              [suggestions]="propriedadesFiltradas" (completeMethod)="filtrarPrioridades($event)" [dropdown]="true"
-              field="label" [forceSelection]="true" placeholder="Selecione">
-
-              <!-- Template da lista de sugestões -->
-              <ng-template let-option pTemplate="item">
-                <p-tag [value]="option.label" [severity]="option.severity"></p-tag>
+              <ng-template let-cliente pTemplate="item">
+                {{ cliente.nome }} - {{ cliente.documento }}
               </ng-template>
 
-              <!-- Template do item selecionado -->
-              <ng-template let-selected pTemplate="selectedItem">
-                <p-tag [value]="selected.label" [severity]="selected.severity"></p-tag>
+              <!-- Template para item selecionado (no input) -->
+              <ng-template let-cliente pTemplate="selectedItem">
+                {{ cliente.nome }} - {{ cliente.documento }}
               </ng-template>
+            </p-autocomplete>
 
-            </p-autoComplete>
           </div>
+          <app-message-valid-forms [control]="clienteControl" text="Informar o cliente é obrigatório"
+            error="required"></app-message-valid-forms>
 
 
-          <div class="input-bloco">
-            <label for="status">Status</label>
-            <p-autoComplete class="autocompletedark" inputId="status" [(ngModel)]="novaTask.status"
-              [suggestions]="statusFiltrados" (completeMethod)="filtrarStatus($event)" [dropdown]="true"
-              [forceSelection]="true" placeholder="Selecione">
-            </p-autoComplete>
+          <div class="colunainputs" style="margin-right: 50%; margin-top: 15px;">
+            <label for="titulo">Título da Tarefa</label>
+            <input autocomplete="off" class="inputs" id="titulo" type="text" pInputText [(ngModel)]="novaTask.titulo"
+              required minlength="5" maxlength="80" name="titulotask" #tituloTask="ngModel" />
           </div>
+          <app-message-valid-forms [control]="tituloTask" text="Informar o título da tarefa é obrigatório"
+            error="required"></app-message-valid-forms>
+          <app-message-valid-forms [control]="tituloTask" text="O título deve ter no mínimo 5 caracteres"
+            error="minlength"></app-message-valid-forms>
+          <app-message-valid-forms [control]="tituloTask" text="O título deve ter no máximo 80 caracteres"
+            error="maxlength"></app-message-valid-forms>
+
+          <div class="colunainputs" style="margin-top: 1%; width: 100%;">
+            <p-floatlabel variant="in" style="width: 100%;">
+              <textarea pTextarea id="in_label" class="textarea-expand" rows="6" style="resize: none;"
+                [(ngModel)]="novaTask.descricao" name="descricaotask" #descricaoTarefa="ngModel" required="true"
+                minlength="10"></textarea>
+              <label for="in_label">Descrição</label>
+            </p-floatlabel>
+          </div>
+          <app-message-valid-forms [control]="descricaoTarefa" text="Informar a descrição da tarefa é obrigatório"
+            error="required"></app-message-valid-forms>
+          <app-message-valid-forms [control]="descricaoTarefa" text=" A descrição deve ter no mínimo 10 caracteres"
+            error="minlength"></app-message-valid-forms>
+
+          <div class="linhainputs" style="margin-top: 1%;">
+            <div class="input-bloco">
+              <label for="prioridade">Prioridade</label>
+              <p-autoComplete class="autocompletedark" inputId="prioridade" [(ngModel)]="novaTask.prioridade"
+                [suggestions]="propriedadesFiltradas" (completeMethod)="filtrarPrioridades($event)" [dropdown]="true"
+                field="label" [forceSelection]="true" placeholder="Selecione" name="prioridadeTask" required="true" #prioridadeTask="ngModel">
+
+                <!-- Template da lista de sugestões -->
+                <ng-template let-option pTemplate="item">
+                  <p-tag [value]="option.label" [severity]="option.severity"></p-tag>
+                </ng-template>
+
+                <!-- Template do item selecionado -->
+                <ng-template let-selected pTemplate="selectedItem">
+                  <p-tag [value]="selected.label" [severity]="selected.severity"></p-tag>
+                </ng-template>
+
+              </p-autoComplete>
+              <app-message-valid-forms [control]="prioridadeTask" text="Informar a prioridade é obrigatório"
+                error="required"></app-message-valid-forms>
 
 
-          <div class="input-bloco">
-            <div>
-              <p-button label="Mídia" icon="pi pi-file" severity="info"></p-button>
+            </div>
+
+
+            <div class="input-bloco">
+              <label for="status">Status</label>
+              <p-autoComplete class="autocompletedark" inputId="status" [(ngModel)]="novaTask.status"
+                [suggestions]="statusFiltrados" (completeMethod)="filtrarStatus($event)" [dropdown]="true"
+                [forceSelection]="true" placeholder="Selecione" name="statusTask" [required]="true" #statusTask="ngModel">
+                <ng-template let-status pTemplate="item">
+                  {{ status.label }}
+                </ng-template>
+
+                <!-- Item selecionado no input -->
+                <ng-template let-status pTemplate="selectedItem">
+                  {{ status.label }}
+                </ng-template>
+              </p-autoComplete>
+              <app-message-valid-forms [control]="statusTask" text="Informar o status é obrigatório"
+                error="required"></app-message-valid-forms>
+            </div>
+
+
+            <div class="input-bloco">
+              <div>
+                <p-button label="Mídia" icon="pi pi-file" severity="info"></p-button>
+              </div>
             </div>
           </div>
-        </div>
+        </form>
+
 
         <div style="display: flex; justify-content: right;">
-          <p-button label="Criar Task" icon="pi pi-check" (onClick)="criarTask()" severity="info"></p-button>
+          <p-button label="Criar Task" icon="pi pi-check" severity="info" (click)="lancarTask()"></p-button>
         </div>
 
       </p-card>
@@ -71,31 +117,54 @@
 
     <!-- LISTAGEM DE TASKS -->
     <div class="col-12 md:col-7" style="margin-top: 2px;">
-      <p-card class="cardlancartask" header="Tasks do Cliente">
-        <div class="field">
-          <label for="filtroCliente">Filtrar por Cliente</label>
-          <p-dropdown [options]="clientes" optionLabel="nome" [(ngModel)]="clienteFiltro"
-            placeholder="Selecione um cliente" inputId="filtroCliente"></p-dropdown>
+      <p-card class="cardlancartask">
+        <ng-template pTemplate="header">
+          <div class="header-personalizado">Visualizar Tarefas do cliente</div>
+        </ng-template>
+        <div class="field" style="margin-bottom: 5px;">
+          <label style="margin-right: 5px;" for="filtroCliente">Filtrar por Cliente</label>
+          <p-autocomplete class="autocompletedark" [(ngModel)]="clienteSelecionadoDropDownTaskTable"
+            [suggestions]="clientesFiltrados" (completeMethod)="filtrarClientes($event)" placeholder="Selecione"
+            [dropdown]="true" field="nome" (onSelect)="aoSelecionarCliente()">
+
+            <ng-template let-cliente pTemplate="item">
+              {{ cliente.nome }} - {{ cliente.documento }}
+            </ng-template>
+
+            <!-- Template para item selecionado (no input) -->
+            <ng-template let-cliente pTemplate="selectedItem">
+              {{ cliente.nome }} - {{ cliente.documento }}
+            </ng-template>
+          </p-autocomplete>
         </div>
 
-        <p-table [value]="tasksFiltradas" [paginator]="true" [rows]="5" *ngIf="clienteFiltro" responsiveLayout="scroll">
+        <p-table [value]="tasksFiltradas" [lazy]="true" [paginator]="true" [rows]="10" [loading]="loading"
+          responsiveLayout="scroll" [scrollable]="true" (onLazyLoad)="carregarTasksLazy($event)"
+          [style.display]="clienteSelecionadoDropDownTaskTable ? 'block' : 'none'" [totalRecords]="totalRecords"
+          [sortField]="'dataCriacao'" [sortOrder]="-1">
+
           <ng-template pTemplate="header">
             <tr>
-              <th>Título</th>
-              <th>Prioridade</th>
-              <th>Status</th>
-              <th>Ações</th>
+              <th pSortableColumn="titulo" style="width: 40%; min-width: 150px;">Título <p-sortIcon
+                  field="titulo"></p-sortIcon></th>
+              <th pSortableColumn="prioridade" style="width: 10%;">Prioridade <p-sortIcon
+                  field="prioridade"></p-sortIcon></th>
+              <th pSortableColumn="status" style="width: 10%;">Status <p-sortIcon field="status"></p-sortIcon></th>
+              <th pSortableColumn="dataCriacao" style="width: 10%;">Data Criação <p-sortIcon
+                  field="dataCriacao"></p-sortIcon></th>
+              <th pSortableColumn="autor.nome" style="width: 20%;">Autor <p-sortIcon field="autor.nome"></p-sortIcon>
+              </th>
+              <th style="width: 10%;">Ações</th>
             </tr>
           </ng-template>
+
           <ng-template pTemplate="body" let-task>
             <tr>
               <td>{{ task.titulo }}</td>
-              <td>
-
-              </td>
-              <td>
-
-              </td>
+              <td>{{ task.prioridade }}</td>
+              <td>{{ task.status }}</td>
+              <td>{{ task.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ task.autor?.nome }}</td>
               <td>
                 <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text"></button>
                 <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text"></button>
@@ -104,7 +173,7 @@
           </ng-template>
         </p-table>
 
-        <p-message *ngIf="!clienteFiltro" severity="info"
+        <p-message *ngIf="!clienteSelecionadoDropDownTaskTable" severity="info"
           text="Selecione um cliente para visualizar as tasks."></p-message>
       </p-card>
     </div>

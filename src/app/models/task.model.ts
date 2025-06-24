@@ -11,7 +11,6 @@ export interface TaskModel {
   description: string;
   expanded: boolean;
   priority: Priority;
-  suffix: string;
   comments?: CommentModel[];
 
   createdAt?: Date;

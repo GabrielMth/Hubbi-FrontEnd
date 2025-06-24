@@ -11,7 +11,7 @@ export class AuthService {
   private apiUrl = 'http://localhost:8080/login';
   private refreshUrl = 'http://localhost:8080/login/refresh';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) { }
 
   login(username: string, password: string): Observable<any> {
     return this.http.post<any>(this.apiUrl, { username, password }).pipe(
@@ -67,6 +67,19 @@ export class AuthService {
     }
   }
 
+  getUsuarioName(): string {
+    const nome = localStorage.getItem('nome');
+    return nome ?? 'Desconhecido';
+  }
+
+  getUsuarioId(): number | null {
+  const token = localStorage.getItem('accessToken');
+  if (!token) return null;
+
+  const payload = JSON.parse(atob(token.split('.')[1]));
+  return Number(payload.sub);
+}
+
   private decodeToken(token: string): any {
     try {
       const payload = token.split('.')[1];
@@ -76,6 +89,7 @@ export class AuthService {
       return null;
     }
   }
+
 
   logout(): void {
     localStorage.removeItem('accessToken');

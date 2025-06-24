@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Cliente } from '../models/cliente.model';
 import { PaginacaoDTO } from '../dtos/paginacao.dto';
+import { ClienteDropdownDTO } from '../dtos/clientedropdown.dto';
 
 @Injectable({
   providedIn: 'root'
@@ -36,6 +37,10 @@ export class ClienteService {
 
   obterPorId(id: number): Observable<Cliente> {
     return this.http.get<Cliente>(`${this.apiUrl}/${id}`);
+  }
+
+  popularDropdown(): Observable<ClienteDropdownDTO[]> {
+    return this.http.get<ClienteDropdownDTO[]>(`${this.apiUrl}/dropdown`);
   }
 
   pesquisarPorNome(nome: string, pagina: number, tamanho: number, campoOrdenacao: string, direcao: string): Observable<PaginacaoDTO<Cliente>> {

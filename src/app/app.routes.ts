@@ -27,6 +27,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     data: { roles: ['ADMIN'] }
   },
+  { path: 'home',
+    loadComponent: () =>
+      import('./components/kanbanBoard/kanban-board.component').then(m => m.KanbanBoardComponent),
+    canActivate: [AuthGuard]
+  },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'kanban' }
 ];

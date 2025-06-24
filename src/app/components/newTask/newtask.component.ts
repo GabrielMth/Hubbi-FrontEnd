@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { CardModule } from 'primeng/card';
@@ -7,7 +7,7 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { InputTextModule } from 'primeng/inputtext';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { MessageModule } from 'primeng/message';
@@ -15,14 +15,21 @@ import { DividerModule } from 'primeng/divider';
 import { FloatLabel } from 'primeng/floatlabel';
 import { TextareaModule } from 'primeng/textarea';
 
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
+import { ClienteService } from '../../services/cliente.service';
+import { ClienteDropdownDTO } from '../../dtos/clientedropdown.dto';
+import { TaskService } from '../../services/task.service';
+import { AuthService } from '../../auth.service';
+import { TaskCreateDTO } from '../../dtos/taskcriar.dto';
+import { TaskModel } from '../../models/task.model';
+import { MessagesValidFormsComponent } from "../messagesValidForms/messages-valid-forms.component";
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-newtask',
   imports: [
     CommonModule,
     FormsModule,
-
     CardModule,
     DropdownModule,
     InputTextModule,
@@ -35,16 +42,32 @@ import { FormsModule } from '@angular/forms';
     DividerModule,
     TextareaModule,
     FloatLabel,
-    AutoCompleteModule
+    AutoCompleteModule,
+    MessagesValidFormsComponent
   ],
+  providers: [MessageService],
   templateUrl: './newtask.component.html',
   styleUrl: './newtask.component.scss'
 })
-export class NewtaskComponent {
+export class NewtaskComponent implements OnInit {
 
-  clienteSelecionado: any;
-  clienteFiltro: any;
-  value2: string = '';
+  @ViewChild('formTask') formTask!: NgForm;
+  @ViewChild('tabelaTasks') tabela!: Table;
+
+  constructor(
+    private ClienteService: ClienteService,
+    private TaskService: TaskService,
+    private AuthService: AuthService,
+    private messageService: MessageService
+  ) { }
+
+
+  ngOnInit(): void {
+    this.ClienteService.popularDropdown().subscribe(clientes => {
+      this.clientes = clientes;
+      this.clientesFiltrados = clientes;
+    });
+  }
 
   novaTask = {
     titulo: '',
@@ -53,26 +76,126 @@ export class NewtaskComponent {
     status: ''
   };
 
+  tasksFiltradas: TaskModel[] = [];
+
+  clientes: ClienteDropdownDTO[] = [];
+  clientesFiltrados: ClienteDropdownDTO[] = [];
+  clienteSelecionadoDropDownTask: any;
+  clienteSelecionadoDropDownTaskTable: any;
+
   tasks: any[] = [];
-  statusFiltrados: string[] = [];
-  clientesFiltrados: any[] = [];
+  statusFiltrados: { label: string; value: string; }[] = [];
   propriedadesFiltradas: any[] = [];
 
-  statusList: string[] = ['EM ESPERA', 'EM PROGRESSO', 'CONCLUÍDO', 'EM ANÁLISE', 'APROVADO'];
 
-  clientes = [
-    { id: 1, nome: 'Empresa XPTO' },
-    { id: 2, nome: 'Cliente Gabriel' },
-    { id: 3, nome: 'Loja Alpha' }
+  // Variáveis para controle de loading e total de registros na tabela de tasks
+  loading: boolean = false;
+  totalRecords: number = 0;
+
+  statusOptions = [
+    { label: 'Em Espera', value: 'EM_ESPERA' },
+    { label: 'Em Progresso', value: 'EM_PROGRESSO' },
+    { label: 'Concluído', value: 'CONCLUIDO' },
+    { label: 'Em Análise', value: 'EM_ANALISE' },
+    { label: 'Aprovado', value: 'APROVADO' }
   ];
 
-  //cores dropdown
   prioridades = [
-    { label: 'Crítica', value: 'Crítica', severity: 'danger' },
-    { label: 'Alta', value: 'Alta', severity: 'danger' },
-    { label: 'Média', value: 'Média', severity: 'warn' },
-    { label: 'Baixa', value: 'Baixa', severity: 'info' }
+    { label: 'Crítica', value: 'CRITICA', severity: 'danger' },
+    { label: 'Alta', value: 'ALTA', severity: 'danger' },
+    { label: 'Média', value: 'MEDIA', severity: 'warn' },
+    { label: 'Baixa', value: 'BAIXA', severity: 'info' }
   ];
+
+  lancarTask() {
+    if (
+      !this.clienteSelecionadoDropDownTask ||
+      !this.novaTask.titulo ||
+      !this.novaTask.descricao ||
+      !this.novaTask.prioridade ||
+      !this.novaTask.status ||
+      this.formTask.invalid
+    ) {
+      this.messageService.add({
+        summary: 'Erro',
+        detail: 'Os campos não estão preenchidos corretamente.',
+        life: 3000
+      });
+      return;
+    }
+
+    const novaTarefa: TaskCreateDTO = {
+      titulo: this.novaTask.titulo,
+      descricao: this.novaTask.descricao,
+      prioridade: this.novaTask.prioridade as 'BAIXA' | 'MEDIA' | 'ALTA' | 'CRITICA',
+      status: this.novaTask.status as 'EM_ESPERA' | 'EM_PROGRESSO' | 'CONCLUIDO' | 'EM_ANALISE' | 'APROVADO',
+      clienteId: this.clienteSelecionadoDropDownTask.id,
+      autorId: this.AuthService.getUsuarioId()!,
+    };
+
+    this.TaskService.criarTask(novaTarefa).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Tarefa criada com sucesso!'
+        });
+        this.formTask.resetForm();
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Não foi possível criar a tarefa. Tente novamente.'
+        });
+      }
+    });
+  }
+
+  aoSelecionarCliente(): void {
+    if (!this.clienteSelecionadoDropDownTaskTable) return;
+
+    const evento = {
+      first: 0,
+      rows: 10,
+      sortField: 'dataCriacao',
+      sortOrder: -1
+    };
+    this.carregarTasksLazy(evento);
+  }
+
+  carregarTasksLazy(event: any): void {
+    if (!this.clienteSelecionadoDropDownTaskTable) return;
+
+    const page = event.first / event.rows;
+    const size = event.rows;
+    const sortField = event.sortField || 'dataCriacao';
+    const sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
+
+    this.loading = true;
+
+    this.TaskService.listarTasksPorCliente(
+      this.clienteSelecionadoDropDownTaskTable.id,
+      page,
+      size,
+      sortField,
+      sortOrder
+    ).subscribe({
+      next: (resposta) => {
+        this.tasksFiltradas = resposta.conteudo;
+        this.totalRecords = resposta.totalElementos;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar tasks:', err);
+        this.loading = false;
+      }
+    });
+  }
+
+
+
+
 
   filtrarPrioridades(event: any) {
     const query = event.query.toLowerCase();
@@ -83,38 +206,22 @@ export class NewtaskComponent {
 
   filtrarClientes(event: any) {
     const query = event.query.toLowerCase();
-    this.clientesFiltrados = this.clientes.filter(cliente =>
-      cliente.nome.toLowerCase().includes(query)
+
+    let resultados = this.clientes.filter(cliente =>
+      cliente.nome.toLowerCase().includes(query) ||
+      cliente.documento.toLowerCase().includes(query)
     );
+
+    this.clientesFiltrados = resultados.slice(0, 10);
   }
 
 
   filtrarStatus(event: any) {
     const query = event.query.toLowerCase();
-    this.statusFiltrados = this.statusList.filter(status =>
-      status.toLowerCase().includes(query)
+    this.statusFiltrados = this.statusOptions.filter(option =>
+      option.label.toLowerCase().includes(query)
     );
   }
-
-
-  get tasksFiltradas() {
-    if (!this.clienteFiltro) return [];
-    return this.tasks.filter(task => task.clienteId === this.clienteFiltro.id);
-  }
-
-  criarTask() {
-    if (!this.clienteSelecionado || !this.novaTask.titulo) return;
-
-    const taskCriada = {
-      ...this.novaTask,
-      clienteId: this.clienteSelecionado.id,
-      status: 'Aberta',
-    };
-
-    this.tasks.push(taskCriada);
-    this.novaTask = { titulo: '', descricao: '', prioridade: '', status: '' };
-  }
-
 
 
 }
