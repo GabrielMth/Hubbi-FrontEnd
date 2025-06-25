@@ -60,7 +60,8 @@
               <label for="prioridade">Prioridade</label>
               <p-autoComplete class="autocompletedark" inputId="prioridade" [(ngModel)]="novaTask.prioridade"
                 [suggestions]="propriedadesFiltradas" (completeMethod)="filtrarPrioridades($event)" [dropdown]="true"
-                field="label" [forceSelection]="true" placeholder="Selecione" name="prioridadeTask" required="true" #prioridadeTask="ngModel">
+                field="label" [forceSelection]="true" placeholder="Selecione" name="prioridadeTask" required="true"
+                #prioridadeTask="ngModel">
 
                 <!-- Template da lista de sugestões -->
                 <ng-template let-option pTemplate="item">
@@ -84,7 +85,8 @@
               <label for="status">Status</label>
               <p-autoComplete class="autocompletedark" inputId="status" [(ngModel)]="novaTask.status"
                 [suggestions]="statusFiltrados" (completeMethod)="filtrarStatus($event)" [dropdown]="true"
-                [forceSelection]="true" placeholder="Selecione" name="statusTask" [required]="true" #statusTask="ngModel">
+                [forceSelection]="true" placeholder="Selecione" name="statusTask" [required]="true"
+                #statusTask="ngModel">
                 <ng-template let-status pTemplate="item">
                   {{ status.label }}
                 </ng-template>
@@ -121,21 +123,30 @@
         <ng-template pTemplate="header">
           <div class="header-personalizado">Visualizar Tarefas do cliente</div>
         </ng-template>
-        <div class="field" style="margin-bottom: 5px;">
-          <label style="margin-right: 5px;" for="filtroCliente">Filtrar por Cliente</label>
-          <p-autocomplete class="autocompletedark" [(ngModel)]="clienteSelecionadoDropDownTaskTable"
-            [suggestions]="clientesFiltrados" (completeMethod)="filtrarClientes($event)" placeholder="Selecione"
-            [dropdown]="true" field="nome" (onSelect)="aoSelecionarCliente()">
+        <div class="field"
+          style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+          <!-- Agrupar label + autocomplete -->
+          <div style="display: flex; align-items: center;">
+            <label for="filtroCliente">Filtrar por Cliente</label>
 
-            <ng-template let-cliente pTemplate="item">
-              {{ cliente.nome }} - {{ cliente.documento }}
-            </ng-template>
+            <p-autocomplete class="autocompletedark" [(ngModel)]="clienteSelecionadoDropDownTaskTable"
+              [suggestions]="clientesFiltrados" (completeMethod)="filtrarClientes($event)" placeholder="Selecione"
+              [dropdown]="true" field="nome" (onSelect)="aoSelecionarCliente()">
+              <ng-template let-cliente pTemplate="item">
+                <div style="display: flex; flex-direction: column;">
+                  <span>{{ cliente.nome }}</span>
+                  <small style="color: gray;">{{ cliente.documento }}</small>
+                </div>
+              </ng-template>
+              <ng-template let-cliente pTemplate="selectedItem">
+                {{ cliente.nome }} - {{ cliente.documento }}
+              </ng-template>
+            </p-autocomplete>
+          </div>
 
-            <!-- Template para item selecionado (no input) -->
-            <ng-template let-cliente pTemplate="selectedItem">
-              {{ cliente.nome }} - {{ cliente.documento }}
-            </ng-template>
-          </p-autocomplete>
+          <!-- Botão alinhado à direita -->
+          <p-button icon="pi pi-filter" label="Filtros" (onClick)="dialogFiltroVisivel = true">
+          </p-button>
         </div>
 
         <p-table [value]="tasksFiltradas" [lazy]="true" [paginator]="true" [rows]="10" [loading]="loading"
@@ -145,14 +156,14 @@
 
           <ng-template pTemplate="header">
             <tr>
-              <th pSortableColumn="titulo" style="width: 40%; min-width: 150px;">Título <p-sortIcon
+              <th pSortableColumn="titulo" style="width: 35%; min-width: 150px;">Título <p-sortIcon
                   field="titulo"></p-sortIcon></th>
               <th pSortableColumn="prioridade" style="width: 10%;">Prioridade <p-sortIcon
                   field="prioridade"></p-sortIcon></th>
-              <th pSortableColumn="status" style="width: 10%;">Status <p-sortIcon field="status"></p-sortIcon></th>
-              <th pSortableColumn="dataCriacao" style="width: 10%;">Data Criação <p-sortIcon
+              <th pSortableColumn="status" style="width: 15%;">Status <p-sortIcon field="status"></p-sortIcon></th>
+              <th pSortableColumn="dataCriacao" style="width: 15%;">Data Criação <p-sortIcon
                   field="dataCriacao"></p-sortIcon></th>
-              <th pSortableColumn="autor.nome" style="width: 20%;">Autor <p-sortIcon field="autor.nome"></p-sortIcon>
+              <th pSortableColumn="autor.nome" style="width: 15%;">Autor <p-sortIcon field="autor.nome"></p-sortIcon>
               </th>
               <th style="width: 10%;">Ações</th>
             </tr>
@@ -161,8 +172,15 @@
           <ng-template pTemplate="body" let-task>
             <tr>
               <td>{{ task.titulo }}</td>
-              <td>{{ task.prioridade }}</td>
-              <td>{{ task.status }}</td>
+              <td>
+                <p-tag *ngIf="getPrioridadeTag(task.prioridade) as prioridadeTag" [value]="prioridadeTag.label"
+                  [severity]="prioridadeTag.severity"></p-tag>
+              </td>
+              <td>
+                <p-tag [style]="{'background-color': getStatusColor(task.status), 'color': 'white'}">
+                  {{ formatStatusLabel(task.status) }}
+                </p-tag>
+              </td>
               <td>{{ task.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</td>
               <td>{{ task.autor?.nome }}</td>
               <td>
@@ -178,4 +196,86 @@
       </p-card>
     </div>
   </div>
+
+
+
+  <p-dialog header="Filtrar Tarefas" [(visible)]="dialogFiltroVisivel" [modal]="true"
+    [style]="{ width: '40rem', height: '45rem' }" [closable]="true">
+
+    <ng-template pTemplate="footer">
+      <p-button label="Aplicar" icon="pi pi-check"></p-button>
+    </ng-template>
+
+    <div class="p-fluid" style="display: flex; flex-direction: column; gap: 1rem;">
+
+      <!-- Datas -->
+      <div class="field">
+        <label style="margin-bottom: 0.5rem;">Data de criação da Tarefa</label>
+        <div style="display: flex; gap: 1rem;">
+          <p-datepicker [(ngModel)]="filtros.dataInicio" [showIcon]="true" inputId="dataInicio" [locale]="filtrosDataLocale"
+            placeholder="Data Início" [style]="{ width: '100%' }"></p-datepicker>
+            <p-datepicker [(ngModel)]="filtros.dataFim" [showIcon]="true" inputId="dataFim" placeholder="Data Final"
+            [style]="{ width: '100%' }"></p-datepicker>
+        </div>
+      </div>
+
+      <!-- Cliente -->
+      <div class="field">
+        <label>Cliente*</label>
+        <p-autoComplete [(ngModel)]="filtros.cliente" [suggestions]="clientesFiltrados" required="true"
+        placeholder="Selecione um Cliente ou pesquise pelo nome"
+          (completeMethod)="filtrarClientes($event)" field="nome" [dropdown]="true" [style]="{ width: '100%' }">
+          <ng-template let-cliente pTemplate="item">
+            <div style="display: flex; flex-direction: column;">
+              <span>{{ cliente.nome }}</span>
+              <small style="color: gray;">{{ cliente.documento }}</small>
+            </div>
+          </ng-template>
+        </p-autoComplete>
+      </div>
+
+      <!-- Título -->
+      <div class="field">
+        <label for="filtroTitulo">Título</label>
+        <input type="text" id="filtroTitulo" pInputText [(ngModel)]="filtros.titulo" style="width: 100%;" />
+      </div>
+
+      <!-- Prioridade -->
+      <div class="field">
+        <label>Prioridade</label>
+        <p-autoComplete placeholder="Selecione" [(ngModel)]="filtros.prioridade" field="label" [dropdown]="true"
+          [suggestions]="propriedadesFiltradas" (completeMethod)="filtrarPrioridades($event)"
+          [style]="{ width: '100%' } ">
+          <ng-template let-pri pTemplate="item">
+            <p-tag [value]="pri.label" [severity]="pri.severity"></p-tag>
+          </ng-template>
+          <ng-template let-pri pTemplate="selectedItem">
+            <p-tag [value]="pri.label" [severity]="pri.severity"></p-tag>
+          </ng-template>
+        </p-autoComplete>
+      </div>
+
+      <!-- Status -->
+      <div class="field">
+        <label>Status</label>
+        <p-autoComplete placeholder="Selecione" [(ngModel)]="filtros.status" [suggestions]="statusFiltrados"
+          (completeMethod)="filtrarStatus($event)" field="label" [dropdown]="true" [style]="{ width: '100%' }">
+          <ng-template let-status pTemplate="item">
+            {{ status.label }}
+          </ng-template>
+
+          <!-- Item selecionado no input -->
+          <ng-template let-status pTemplate="selectedItem">
+            {{ status.label }}
+          </ng-template>
+        </p-autoComplete>
+      </div>
+
+    </div>
+  </p-dialog>
+
+
+
+
+
 </div>

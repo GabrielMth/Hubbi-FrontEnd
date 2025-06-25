@@ -21,9 +21,10 @@ import { ClienteDropdownDTO } from '../../dtos/clientedropdown.dto';
 import { TaskService } from '../../services/task.service';
 import { AuthService } from '../../auth.service';
 import { TaskCreateDTO } from '../../dtos/taskcriar.dto';
-import { TaskModel } from '../../models/task.model';
 import { MessagesValidFormsComponent } from "../messagesValidForms/messages-valid-forms.component";
 import { MessageService } from 'primeng/api';
+import { Dialog } from 'primeng/dialog';
+import { DatePicker } from 'primeng/datepicker';
 
 @Component({
   selector: 'app-newtask',
@@ -43,7 +44,9 @@ import { MessageService } from 'primeng/api';
     TextareaModule,
     FloatLabel,
     AutoCompleteModule,
-    MessagesValidFormsComponent
+    MessagesValidFormsComponent,
+    Dialog,
+    DatePicker,
   ],
   providers: [MessageService],
   templateUrl: './newtask.component.html',
@@ -76,7 +79,9 @@ export class NewtaskComponent implements OnInit {
     status: ''
   };
 
-  tasksFiltradas: TaskModel[] = [];
+  dialogFiltroVisivel = false;
+
+  tasksFiltradas: any[] = [];
 
   clientes: ClienteDropdownDTO[] = [];
   clientesFiltrados: ClienteDropdownDTO[] = [];
@@ -92,6 +97,7 @@ export class NewtaskComponent implements OnInit {
   loading: boolean = false;
   totalRecords: number = 0;
 
+  //cores nos pautocomplete
   statusOptions = [
     { label: 'Em Espera', value: 'EM_ESPERA' },
     { label: 'Em Progresso', value: 'EM_PROGRESSO' },
@@ -101,11 +107,48 @@ export class NewtaskComponent implements OnInit {
   ];
 
   prioridades = [
-    { label: 'Crítica', value: 'CRITICA', severity: 'danger' },
-    { label: 'Alta', value: 'ALTA', severity: 'danger' },
-    { label: 'Média', value: 'MEDIA', severity: 'warn' },
-    { label: 'Baixa', value: 'BAIXA', severity: 'info' }
+    { label: 'Crítica', value: 'CRITICA', severity: 'danger' as const },
+    { label: 'Alta', value: 'ALTA', severity: 'danger' as const },
+    { label: 'Média', value: 'MEDIA', severity: 'warn' as const },
+    { label: 'Baixa', value: 'BAIXA', severity: 'info' as const }
   ];
+
+  //cores status table
+  getStatusColor(status: string): string {
+    switch (status) {
+      case 'EM_ESPERA':
+        return '#f39c12';
+      case 'EM_PROGRESSO':
+        return '#3498db';
+      case 'CONCLUIDO':
+        return '#2ecc71';
+      case 'REVISANDO':
+        return '#ec3232';
+      case 'APROVADO':
+        return '#27c722';
+      default:
+        return '#999999';
+    }
+  }
+
+  // filtros
+  filtros = {
+    cliente: null,
+    titulo: '',
+    prioridade: null,
+    status: null,
+    dataInicio: null,
+    dataFim: null
+  };
+
+  formatStatusLabel(status: string): string {
+    if (!status) return '';
+
+    return status
+      .toLowerCase()
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
 
   lancarTask() {
     if (
@@ -204,6 +247,11 @@ export class NewtaskComponent implements OnInit {
     );
   }
 
+
+  getPrioridadeTag(prioridadeValue: string) {
+    return this.prioridades.find(p => p.value === prioridadeValue);
+  }
+
   filtrarClientes(event: any) {
     const query = event.query.toLowerCase();
 
@@ -223,5 +271,22 @@ export class NewtaskComponent implements OnInit {
     );
   }
 
+  filtrosDataLocale = {
+    firstDayOfWeek: 0,
+    dayNames: ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'],
+    dayNamesShort: ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'],
+    dayNamesMin: ['Do', 'Se', 'Te', 'Qa', 'Qi', 'Sx', 'Sa'],
+    monthNames: ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+      'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'],
+    monthNamesShort: ['jan', 'fev', 'mar', 'abr', 'mai', 'jun',
+      'jul', 'ago', 'set', 'out', 'nov', 'dez'],
+    today: 'Hoje',
+    clear: 'Limpar',
+    dateFormat: 'dd/mm/yy',
+    weekHeader: 'Sm'
+  };
+
 
 }
+
+

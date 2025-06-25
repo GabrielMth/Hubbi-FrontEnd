@@ -6,15 +6,15 @@
   background: transparent;
 
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* aqui: empilha verticalmente */
   justify-content: center;
   align-items: center;
 
   padding: 10px 0;
-
+  z-index: 1000;
 
   @media (min-width: 768px) {
-    position: fixed;
+    position: static;
     bottom: 0;
     left: 0;
   }

@@ -6,6 +6,24 @@ body {
   margin: 0;
 }
 
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* ocupa toda a altura da tela */
+}
+
+.router-outlet, /* ou a classe/container do conteúdo principal */
+.main-content {
+  flex: 1; /* ocupa o máximo espaço possível */
+}
+
+/* footer normal: posição estática, sem fixar */
+.footer-fixed {
+  position: static;
+  width: 100%;
+}
+
 @media (min-width: 1200px) {
   .container {
     width: 1170px;

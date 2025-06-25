@@ -7,6 +7,7 @@ import { provideEnvironmentNgxCurrency, NgxCurrencyInputMode } from 'ngx-currenc
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { AuthGuard } from './auth.guard';
 import { authInterceptor } from './auth.interceptor';
+import { LOCALE_ID } from '@angular/core';
 
 import { routes } from './app.routes';
 
@@ -14,12 +15,29 @@ import Aura from '@primeng/themes/aura';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+     { provide: LOCALE_ID, useValue: 'pt-BR' },
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
         preset: Aura,
         options: { darkModeSelector: '.p-dark' },
       },
+      translation: {
+        accept: 'Aceitar',
+        reject: 'Rejeitar',
+        dayNames: ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'],
+        dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+        dayNamesMin: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'],
+        monthNames: [
+          'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+          'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        ],
+        monthNamesShort: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+        today: 'Hoje',
+        clear: 'Limpar',
+        weekHeader: 'Sm',
+        dateFormat: 'dd/mm/yy',
+      }
     }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
@@ -38,6 +56,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([authInterceptor])
     ),
+
     AuthGuard,
   ],
 };
