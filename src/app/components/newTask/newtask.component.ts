@@ -22,9 +22,12 @@ import { TaskService } from '../../services/task.service';
 import { AuthService } from '../../auth.service';
 import { TaskCreateDTO } from '../../dtos/taskcriar.dto';
 import { MessagesValidFormsComponent } from "../messagesValidForms/messages-valid-forms.component";
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { Dialog } from 'primeng/dialog';
 import { DatePicker } from 'primeng/datepicker';
+import { TaskFilterDTO } from '../../dtos/taskfilter.dto';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { TaskModel } from '../../models/task.model';
 
 @Component({
   selector: 'app-newtask',
@@ -47,21 +50,24 @@ import { DatePicker } from 'primeng/datepicker';
     MessagesValidFormsComponent,
     Dialog,
     DatePicker,
+    ConfirmDialog
   ],
-  providers: [MessageService],
+  providers: [MessageService, TaskService, ConfirmationService],
   templateUrl: './newtask.component.html',
   styleUrl: './newtask.component.scss'
 })
 export class NewtaskComponent implements OnInit {
 
   @ViewChild('formTask') formTask!: NgForm;
+  @ViewChild('formFiltros') formFiltros!: NgForm;
   @ViewChild('tabelaTasks') tabela!: Table;
 
   constructor(
     private ClienteService: ClienteService,
     private TaskService: TaskService,
     private AuthService: AuthService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private ConfirmationService: ConfirmationService
   ) { }
 
 
@@ -86,6 +92,7 @@ export class NewtaskComponent implements OnInit {
   clientes: ClienteDropdownDTO[] = [];
   clientesFiltrados: ClienteDropdownDTO[] = [];
   clienteSelecionadoDropDownTask: any;
+  clienteSelecionadoDropDownFiltro: any;
   clienteSelecionadoDropDownTaskTable: any;
 
   tasks: any[] = [];
@@ -132,14 +139,57 @@ export class NewtaskComponent implements OnInit {
   }
 
   // filtros
-  filtros = {
-    cliente: null,
-    titulo: '',
-    prioridade: null,
-    status: null,
-    dataInicio: null,
-    dataFim: null
-  };
+  filtros: TaskFilterDTO = {};
+  filtrosAplicados: TaskFilterDTO = {};
+  filtroAtivo: boolean = false;
+
+  aplicarFiltro(): void {
+    this.filtros.clienteId = this.clienteSelecionadoDropDownFiltro?.id;
+
+
+    if (!this.filtros.clienteId) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'Para usar os filtros é necessário selecionar um cliente.',
+        life: 3000
+      });
+      return;
+    }
+
+    if (this.validarDatas()) {
+      this.messageService.add({
+        summary: 'Erro',
+        detail: 'A data de início não pode ser maior que a data de fim.',
+        life: 3000
+      });
+      return;
+    }
+
+    if (this.formFiltros.invalid) {
+      this.messageService.add({
+        summary: 'Erro',
+        detail: 'Preencha os campos corretamente.',
+        life: 3000
+      });
+      return;
+    }
+
+    this.filtroAtivo = true;
+    this.filtrosAplicados = { ...this.filtros };
+
+    const evento = {
+      first: 0,
+      rows: 10,
+      sortField: 'dataCriacao',
+      sortOrder: -1
+    };
+
+    this.carregarTasksLazy(evento);
+    this.clienteSelecionadoDropDownTaskTable = this.clienteSelecionadoDropDownFiltro;
+    this.formFiltros.resetForm();
+    this.dialogFiltroVisivel = false;
+  }
 
   formatStatusLabel(status: string): string {
     if (!status) return '';
@@ -195,8 +245,39 @@ export class NewtaskComponent implements OnInit {
     });
   }
 
+
+  excluirTask(id: number) {
+    this.TaskService.deletarTask(id).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Tarefa excluída.' });
+        this.carregarTasksLazy({ first: 0, rows: 10, sortField: 'dataCriacao', sortOrder: -1 });
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Erro', detail: err.error?.[0]?.mensagemUsuario});
+      }
+    });
+  }
+
+  confirmarExclusao(task: any) {
+    this.ConfirmationService.confirm({
+      message: `Tem certeza que deseja excluir a tarefa "${task.titulo}"?`,
+      header: 'Confirmação',
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      acceptLabel: 'Excluir',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        this.excluirTask(task.id);
+      }
+    });
+  }
+
   aoSelecionarCliente(): void {
     if (!this.clienteSelecionadoDropDownTaskTable) return;
+
+    this.filtros = {};
+    this.filtrosAplicados = {};
+    this.filtroAtivo = false;
 
     const evento = {
       first: 0,
@@ -208,8 +289,6 @@ export class NewtaskComponent implements OnInit {
   }
 
   carregarTasksLazy(event: any): void {
-    if (!this.clienteSelecionadoDropDownTaskTable) return;
-
     const page = event.first / event.rows;
     const size = event.rows;
     const sortField = event.sortField || 'dataCriacao';
@@ -217,28 +296,43 @@ export class NewtaskComponent implements OnInit {
 
     this.loading = true;
 
-    this.TaskService.listarTasksPorCliente(
-      this.clienteSelecionadoDropDownTaskTable.id,
-      page,
-      size,
-      sortField,
-      sortOrder
-    ).subscribe({
-      next: (resposta) => {
-        this.tasksFiltradas = resposta.conteudo;
-        this.totalRecords = resposta.totalElementos;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Erro ao carregar tasks:', err);
-        this.loading = false;
-      }
-    });
+
+    if (this.filtroAtivo) {
+      this.TaskService.listarTasksComFiltro(this.filtrosAplicados, page, size, sortField, sortOrder).subscribe({
+        next: (res) => {
+          this.tasksFiltradas = res.conteudo;
+          this.totalRecords = res.totalElementos;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Erro ao carregar tasks com filtros:', err);
+          this.loading = false;
+        }
+      });
+    } else if (this.clienteSelecionadoDropDownTaskTable) {
+
+
+      this.TaskService.listarTasksPorCliente(
+        this.clienteSelecionadoDropDownTaskTable.id,
+        page,
+        size,
+        sortField,
+        sortOrder
+      ).subscribe({
+        next: (res) => {
+          this.tasksFiltradas = res.conteudo;
+          this.totalRecords = res.totalElementos;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Erro ao carregar tasks por cliente:', err);
+          this.loading = false;
+        }
+      });
+    } else {
+      this.loading = false;
+    }
   }
-
-
-
-
 
   filtrarPrioridades(event: any) {
     const query = event.query.toLowerCase();
@@ -285,6 +379,16 @@ export class NewtaskComponent implements OnInit {
     dateFormat: 'dd/mm/yy',
     weekHeader: 'Sm'
   };
+
+  validarDatas(): boolean {
+    const inicio = this.filtros.dataInicio;
+    const fim = this.filtros.dataFim;
+
+    if (inicio && fim) {
+      return new Date(inicio) > new Date(fim);
+    }
+    return false;
+  }
 
 
 }

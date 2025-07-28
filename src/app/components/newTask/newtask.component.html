@@ -16,12 +16,18 @@
               #clienteControl="ngModel">
 
               <ng-template let-cliente pTemplate="item">
-                {{ cliente.nome }} - {{ cliente.documento }}
+                <div style="display: flex; flex-direction: column;">
+                  <span>{{ cliente.nome }}</span>
+                  <small style="color: gray;">{{ cliente.documento }}</small>
+                </div>
               </ng-template>
 
               <!-- Template para item selecionado (no input) -->
               <ng-template let-cliente pTemplate="selectedItem">
-                {{ cliente.nome }} - {{ cliente.documento }}
+                <div style="display: flex; flex-direction: column;">
+                  <span>{{ cliente.nome }}</span>
+                  <small style="color: gray;">{{ cliente.documento }}</small>
+                </div>
               </ng-template>
             </p-autocomplete>
 
@@ -160,7 +166,7 @@
                   field="titulo"></p-sortIcon></th>
               <th pSortableColumn="prioridade" style="width: 10%;">Prioridade <p-sortIcon
                   field="prioridade"></p-sortIcon></th>
-              <th pSortableColumn="status" style="width: 15%;">Status <p-sortIcon field="status"></p-sortIcon></th>
+              <th pSortableColumn="status" style="width: 12%;">Status <p-sortIcon field="status"></p-sortIcon></th>
               <th pSortableColumn="dataCriacao" style="width: 15%;">Data Criação <p-sortIcon
                   field="dataCriacao"></p-sortIcon></th>
               <th pSortableColumn="autor.nome" style="width: 15%;">Autor <p-sortIcon field="autor.nome"></p-sortIcon>
@@ -184,12 +190,12 @@
               <td>{{ task.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</td>
               <td>{{ task.autor?.nome }}</td>
               <td>
-                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text"></button>
-                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text"></button>
+                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text" (click)="confirmarExclusao(task)"></button>
               </td>
             </tr>
           </ng-template>
         </p-table>
+        <p-confirmDialog header="Confirmação" icon="pi pi-exclamation-triangle"></p-confirmDialog>
 
         <p-message *ngIf="!clienteSelecionadoDropDownTaskTable" severity="info"
           text="Selecione um cliente para visualizar as tasks."></p-message>
@@ -198,78 +204,91 @@
   </div>
 
 
-
   <p-dialog header="Filtrar Tarefas" [(visible)]="dialogFiltroVisivel" [modal]="true"
-    [style]="{ width: '40rem', height: '45rem' }" [closable]="true">
+    [style]="{ width: '40rem', height: '46rem' }" [closable]="true">
 
     <ng-template pTemplate="footer">
-      <p-button label="Aplicar" icon="pi pi-check"></p-button>
+      <p-button label="Aplicar" icon="pi pi-check" (onClick)="aplicarFiltro()"></p-button>
     </ng-template>
 
     <div class="p-fluid" style="display: flex; flex-direction: column; gap: 1rem;">
 
       <!-- Datas -->
-      <div class="field">
-        <label style="margin-bottom: 0.5rem;">Data de criação da Tarefa</label>
-        <div style="display: flex; gap: 1rem;">
-          <p-datepicker [(ngModel)]="filtros.dataInicio" [showIcon]="true" inputId="dataInicio" [locale]="filtrosDataLocale"
-            placeholder="Data Início" [style]="{ width: '100%' }"></p-datepicker>
+      <form #formFiltros="ngForm">
+        <div class="field">
+          <label style="margin-bottom: 0.5rem;">Data de criação da tarefa</label>
+          <div style="display: flex;">
+            <p-datepicker [(ngModel)]="filtros.dataInicio" [showIcon]="true" inputId="dataInicio"
+              [locale]="filtrosDataLocale" placeholder="Data Início" [style]="{ width: '100%' }"
+              name="dataInicio"></p-datepicker>
+            <p>Até</p>
             <p-datepicker [(ngModel)]="filtros.dataFim" [showIcon]="true" inputId="dataFim" placeholder="Data Final"
-            [style]="{ width: '100%' }"></p-datepicker>
+              [style]="{ width: '100%' }" name="dataFim"></p-datepicker>
+          </div>
         </div>
-      </div>
+        <app-message-valid-forms [text]="'A data de início não pode ser maior que a data final.'"
+          [visible]="validarDatas()">
+        </app-message-valid-forms>
 
-      <!-- Cliente -->
-      <div class="field">
-        <label>Cliente*</label>
-        <p-autoComplete [(ngModel)]="filtros.cliente" [suggestions]="clientesFiltrados" required="true"
-        placeholder="Selecione um Cliente ou pesquise pelo nome"
-          (completeMethod)="filtrarClientes($event)" field="nome" [dropdown]="true" [style]="{ width: '100%' }">
-          <ng-template let-cliente pTemplate="item">
-            <div style="display: flex; flex-direction: column;">
-              <span>{{ cliente.nome }}</span>
-              <small style="color: gray;">{{ cliente.documento }}</small>
-            </div>
-          </ng-template>
-        </p-autoComplete>
-      </div>
+        <p-divider></p-divider>
 
-      <!-- Título -->
-      <div class="field">
-        <label for="filtroTitulo">Título</label>
-        <input type="text" id="filtroTitulo" pInputText [(ngModel)]="filtros.titulo" style="width: 100%;" />
-      </div>
+        <!-- Cliente -->
+        <div class="field">
+          <label>Cliente* (obrigatório)</label>
+          <p-autoComplete [(ngModel)]="clienteSelecionadoDropDownFiltro" [suggestions]="clientesFiltrados" required="true"
+            placeholder="Selecione um Cliente ou pesquise pelo nome" (completeMethod)="filtrarClientes($event)"
+            field="nome" name="clientefiltro" [dropdown]="true" #clienteControlTaskFilter="ngModel"
+            [style]="{ width: '100%' }">
+            <ng-template let-cliente pTemplate="item">
+              <div style="display: flex; flex-direction: column;">
+                <span>{{ cliente.nome }}</span>
+                <small style="color: gray;">{{ cliente.documento }}</small>
+              </div>
+            </ng-template>
+          </p-autoComplete>
+          <app-message-valid-forms [control]="clienteControlTaskFilter" text="Informar o cliente é obrigatório"
+            error="required"></app-message-valid-forms>
+        </div>
 
-      <!-- Prioridade -->
-      <div class="field">
-        <label>Prioridade</label>
-        <p-autoComplete placeholder="Selecione" [(ngModel)]="filtros.prioridade" field="label" [dropdown]="true"
-          [suggestions]="propriedadesFiltradas" (completeMethod)="filtrarPrioridades($event)"
-          [style]="{ width: '100%' } ">
-          <ng-template let-pri pTemplate="item">
-            <p-tag [value]="pri.label" [severity]="pri.severity"></p-tag>
-          </ng-template>
-          <ng-template let-pri pTemplate="selectedItem">
-            <p-tag [value]="pri.label" [severity]="pri.severity"></p-tag>
-          </ng-template>
-        </p-autoComplete>
-      </div>
+        <!-- Título -->
+        <div class="field">
+          <label for="filtroTitulo">Título</label>
+          <input type="text" id="filtroTitulo" pInputText [(ngModel)]="filtros.titulo" style="width: 100%;"
+            name="filtroTitulo" />
+        </div>
 
-      <!-- Status -->
-      <div class="field">
-        <label>Status</label>
-        <p-autoComplete placeholder="Selecione" [(ngModel)]="filtros.status" [suggestions]="statusFiltrados"
-          (completeMethod)="filtrarStatus($event)" field="label" [dropdown]="true" [style]="{ width: '100%' }">
-          <ng-template let-status pTemplate="item">
-            {{ status.label }}
-          </ng-template>
+        <!-- Prioridade -->
+        <div class="field">
+          <label>Prioridade</label>
+          <p-autoComplete placeholder="Selecione" [(ngModel)]="filtros.prioridade" field="label" [dropdown]="true"
+            [suggestions]="propriedadesFiltradas" (completeMethod)="filtrarPrioridades($event)" name="prioridadeFiltro"
+            [style]="{ width: '100%' } ">
+            <ng-template let-pri pTemplate="item">
+              <p-tag [value]="pri.label" [severity]="pri.severity"></p-tag>
+            </ng-template>
+            <ng-template let-pri pTemplate="selectedItem">
+              <p-tag [value]="pri.label" [severity]="pri.severity"></p-tag>
+            </ng-template>
+          </p-autoComplete>
+        </div>
 
-          <!-- Item selecionado no input -->
-          <ng-template let-status pTemplate="selectedItem">
-            {{ status.label }}
-          </ng-template>
-        </p-autoComplete>
-      </div>
+        <!-- Status -->
+        <div class="field">
+          <label>Status</label>
+          <p-autoComplete placeholder="Selecione" [(ngModel)]="filtros.status" [suggestions]="statusFiltrados"
+            (completeMethod)="filtrarStatus($event)" field="label" [dropdown]="true" [style]="{ width: '100%' }"
+            name="statusFiltro">
+            <ng-template let-status pTemplate="item">
+              {{ status.label }}
+            </ng-template>
+
+            <!-- Item selecionado no input -->
+            <ng-template let-status pTemplate="selectedItem">
+              {{ status.label }}
+            </ng-template>
+          </p-autoComplete>
+        </div>
+      </form>
 
     </div>
   </p-dialog>

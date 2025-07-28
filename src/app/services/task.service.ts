@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { TaskCreateDTO } from '../dtos/taskcriar.dto';
 import { TaskModel } from '../models/task.model';
 import { PaginacaoDTO } from '../dtos/paginacao.dto';
+import { TaskFilterDTO } from '../dtos/taskfilter.dto';
 
 @Injectable({
   providedIn: 'root'
@@ -35,5 +36,48 @@ export class TaskService {
       { params }
     );
   }
+
+  listarTasksComFiltro(
+    filtros: TaskFilterDTO,
+    page: number,
+    size: number,
+    sortField: string,
+    sortOrder: string
+  ): Observable<PaginacaoDTO<TaskModel>> {
+    let params = new HttpParams()
+      .set('clienteId', filtros.clienteId!)
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sort', `${sortField},${sortOrder}`);
+
+    if (filtros.titulo) params = params.set('titulo', filtros.titulo);
+    if (filtros.status) params = params.set('status', filtros.status);
+    if (filtros.prioridade) params = params.set('prioridade', filtros.prioridade);
+
+    if (filtros.dataInicio) {
+      const dataInicioStr = this.formatarData(filtros.dataInicio);
+      params = params.set('dataInicio', dataInicioStr);
+    }
+
+    if (filtros.dataFim) {
+      const dataFimStr = this.formatarData(filtros.dataFim);
+      params = params.set('dataFim', dataFimStr);
+    }
+
+    return this.http.get<PaginacaoDTO<TaskModel>>(`${this.baseUrl}/filtro`, { params });
+  }
+
+  deletarTask(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  private formatarData(data: Date): string {
+    const dia = data.getDate().toString().padStart(2, '0');
+    const mes = (data.getMonth() + 1).toString().padStart(2, '0');
+    const ano = data.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+  }
+
+
 
 }

@@ -1,0 +1,48 @@
+:host ::ng-deep .dialogdetails .p-dialog-content {
+  max-height: 68rem;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+/* Estilização do scrollbar */
+:host ::ng-deep .dialogdetails .p-dialog-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+:host ::ng-deep .dialogdetails .p-dialog-content::-webkit-scrollbar-track {
+  background: #1b1b2a;
+  border-radius: 4px;
+}
+
+:host ::ng-deep .dialogdetails .p-dialog-content::-webkit-scrollbar-thumb {
+  background-color: #aaadbd;
+  border-radius: 4px;
+  border: 1px solid #2a2a40;
+}
+
+:host ::ng-deep .dialogdetails .p-dialog-content::-webkit-scrollbar-thumb:hover {
+  background-color: #81a1c1;
+}
+
+
+.task-header-section {
+  display: flex;
+  align-items: center;
+}
+
+.task-description {
+  font-family: 'Cascadia Code', monospace;
+  overflow-y: auto;
+}
+
+
+::ng-deep .custom-task-tooltip {
+  max-width: 500px !important;
+  font-size: 0.85rem;
+  white-space: normal !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: inherit !important;
+}

@@ -57,7 +57,7 @@ export class NavbarComponent implements OnInit {
     }
     if (this.isAdmin) {
       this.items.push({
-        label: 'Task',
+        label: 'Tarefas',
         command: () => this.navbarService.gotoTasks(),
         icon: 'pi pi-ticket'
       });
