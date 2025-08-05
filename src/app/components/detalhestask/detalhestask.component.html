@@ -1,26 +1,30 @@
-<div class="container">
-  <p-dialog class="dialogdetails" [(visible)]="selectedTaskDialogVisible" [modal]="true" header="Detalhes do Card"
+<p-dialog class="dialogdetails" [(visible)]="dialogDetailsTaskVisible" [modal]="true" header="Detalhes do Card"
   [style]="{ width: '55rem', height: '55rem' }">
 
   <ng-container *ngIf="selectedTask">
 
-    <h3>{{ selectedTask.title }}</h3>
+    <h3>{{ selectedTask.titulo }}</h3>
 
     <div class="task-header-section">
-      <p-tag [style]="{ 'background-color': getStatusColorByTaskId(selectedTask.id), color: '#fff' }"
-        value="{{ getStatusLabelByTaskId(selectedTask.id) }} |" rounded></p-tag>
+      <p-tag
+        [style]="{ 'background-color': getStatusColorByTaskId(selectedTask.id), color: '#fff', 'margin-right': '0.5rem' }"
+        [value]="getStatusLabelByTaskId(selectedTask.id) + ' |'" rounded pTooltip="Status">
+      </p-tag>
+
+      <p-tag [style]="{ 'background-color': getPrioridadeColorByTaskId(selectedTask.id), color: '#fff' }"
+        [value]="getPrioridadeLabelByTaskId(selectedTask.id) + ' |'" rounded pTooltip="Prioridade">
+      </p-tag>
 
       <i #infoIcon class="pi pi-info-circle" style="font-size: 1.2rem; color: #555; cursor: pointer; margin-left: auto;"
         tabindex="0" aria-label="Informações da tarefa" [pTooltip]="informacaoTask" tooltipPosition="left"
         [appendTo]="'body'" [tooltipStyleClass]="'custom-task-tooltip'">
       </i>
 
-
       <ng-template #informacaoTask>
         <div class="flex items-center" style="max-width: 20rem; font-size: 0.70rem;">
           <div>
-            <div><strong>Criado em:</strong> {{ selectedTask.createdAt | date: 'dd/MM/yyyy HH:mm' }}</div>
-            <div><strong>Criado por:</strong> {{ selectedTask.createdBy }}</div>
+            <div><strong>Criado em:</strong> {{ selectedTask.dataCriacao | date: 'dd/MM/yyyy HH:mm' }}</div>
+            <div><strong>Criado por:</strong> {{ selectedTask.autor.nome }}</div>
             <div><strong>Movimentações:</strong></div>
             <ul style="margin: 0; padding-left: 1rem;">
               <li *ngFor="let m of selectedTask?.movements">
@@ -36,14 +40,14 @@
 
     <!-- Descrição -->
     <p class="task-description">
-      {{ selectedTask.description }}
+      {{ selectedTask.descricao }}
     </p>
 
+
     <!-- Comentários -->
-    <app-comments-section [comments]="selectedTask.comments || []" [author]="'Gabriel Matheus'"
+    <app-comments-section
       (commentAdded)="handleNewComment($event)">
     </app-comments-section>
 
   </ng-container>
 </p-dialog>
-</div>

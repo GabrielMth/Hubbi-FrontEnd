@@ -28,6 +28,7 @@ import { DatePicker } from 'primeng/datepicker';
 import { TaskFilterDTO } from '../../dtos/taskfilter.dto';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { TaskModel } from '../../models/task.model';
+import { DetalhestaskComponent } from '../detalhestask/detalhestask.component';
 
 @Component({
   selector: 'app-newtask',
@@ -50,7 +51,8 @@ import { TaskModel } from '../../models/task.model';
     MessagesValidFormsComponent,
     Dialog,
     DatePicker,
-    ConfirmDialog
+    ConfirmDialog,
+    DetalhestaskComponent
   ],
   providers: [MessageService, TaskService, ConfirmationService],
   templateUrl: './newtask.component.html',
@@ -61,6 +63,7 @@ export class NewtaskComponent implements OnInit {
   @ViewChild('formTask') formTask!: NgForm;
   @ViewChild('formFiltros') formFiltros!: NgForm;
   @ViewChild('tabelaTasks') tabela!: Table;
+  @ViewChild('detalhesTask') detalhesTaskComponent!: DetalhestaskComponent;
 
   constructor(
     private ClienteService: ClienteService,
@@ -94,6 +97,7 @@ export class NewtaskComponent implements OnInit {
   clienteSelecionadoDropDownTask: any;
   clienteSelecionadoDropDownFiltro: any;
   clienteSelecionadoDropDownTaskTable: any;
+  tarefaSelecionada: any;
 
   tasks: any[] = [];
   statusFiltrados: { label: string; value: string; }[] = [];
@@ -120,22 +124,63 @@ export class NewtaskComponent implements OnInit {
     { label: 'Baixa', value: 'BAIXA', severity: 'info' as const }
   ];
 
-  //cores status table
   getStatusColor(status: string): string {
     switch (status) {
-      case 'EM_ESPERA':
-        return '#f39c12';
-      case 'EM_PROGRESSO':
-        return '#3498db';
-      case 'CONCLUIDO':
-        return '#2ecc71';
-      case 'REVISANDO':
-        return '#ec3232';
-      case 'APROVADO':
-        return '#27c722';
-      default:
-        return '#999999';
+      case 'EM_ESPERA': return '#f39c12';
+      case 'EM_PROGRESSO': return '#3498db';
+      case 'CONCLUIDO': return '#2ecc71';
+      case 'REVISANDO': return '#ec3232';
+      case 'APROVADO': return '#27c722';
+      default: return '#999999';
     }
+  }
+
+  getPrioridadeColor(prioridade: string): string {
+    switch (prioridade) {
+      case 'CRITICA': return '#e74c3c'; // vermelho forte
+      case 'ALTA': return '#e74c3c';    // laranja
+      case 'MEDIA': return '#f39c12';   // amarelo
+      case 'BAIXA': return '#3498db';   // azul
+      default: return '#999999';
+    }
+  }
+
+  getStatusLabel(status: string): string {
+    if (!status) return 'Desconhecido';
+    return status.toLowerCase()
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  getStatusColorByTaskId(id: number): string {
+    const task = this.tasks.find(t => t.id === id) || this.tarefaSelecionada;
+    if (!task) return '#999999';
+    return this.getStatusColor(task.status);
+  }
+
+  getStatusLabelByTaskId(id: number): string {
+    const task = this.tasks.find(t => t.id === id) || this.tarefaSelecionada;
+    if (!task) return 'Desconhecido';
+    return this.getStatusLabel(task.status);
+  }
+
+
+  getPrioridadeColorByTaskId(id: number): string {
+    const task = this.tasks.find(t => t.id === id) || this.tarefaSelecionada;
+    if (!task) return '#999999';
+    return this.getPrioridadeColor(task.prioridade);
+  }
+
+  getPrioridadeLabelByTaskId(id: number): string {
+    const task = this.tasks.find(t => t.id === id) || this.tarefaSelecionada;
+    if (!task) return 'Desconhecida';
+    return this.getPrioridadeLabel(task.prioridade);
+  }
+
+  getPrioridadeLabel(prioridade: string): string {
+    if (!prioridade) return 'Desconhecida';
+    return prioridade.toLowerCase()
+      .replace(/\b\w/g, c => c.toUpperCase());
   }
 
   // filtros
@@ -253,7 +298,7 @@ export class NewtaskComponent implements OnInit {
         this.carregarTasksLazy({ first: 0, rows: 10, sortField: 'dataCriacao', sortOrder: -1 });
       },
       error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: err.error?.[0]?.mensagemUsuario});
+        this.messageService.add({ severity: 'error', summary: 'Erro', detail: err.error?.[0]?.mensagemUsuario });
       }
     });
   }
@@ -389,6 +434,20 @@ export class NewtaskComponent implements OnInit {
     }
     return false;
   }
+
+
+  selecionarTask(task: any) {
+    this.TaskService.buscarDetalhesTask(task.id).subscribe({
+      next: (taskDetalhada) => {
+        this.tarefaSelecionada = taskDetalhada;
+        this.detalhesTaskComponent.dialogDetailsTaskVisible = true;
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao carregar detalhes da tarefa.' });
+      }
+    });
+  }
+
 
 
 }

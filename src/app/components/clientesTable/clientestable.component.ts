@@ -24,6 +24,7 @@ import { UsuarioCreateDTO } from '../../dtos/usuario.dto';
 
 
 @Component({
+  standalone: true,
   selector: 'app-clientestable',
   imports: [CardModule, TableModule, Dialog, IftaLabelModule, NewclienteComponent,
     Tag, ToastModule, ConfirmPopupModule, SharedFormModule, ProgressSpinner,

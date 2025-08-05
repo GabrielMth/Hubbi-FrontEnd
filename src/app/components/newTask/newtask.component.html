@@ -13,7 +13,7 @@
             <p-autocomplete class="autocompletedark" [(ngModel)]="clienteSelecionadoDropDownTask"
               [suggestions]="clientesFiltrados" (completeMethod)="filtrarClientes($event)" placeholder="Selecione"
               [dropdown]="true" field="nome" name="clienteSelecionadoDropDownTask" required="true"
-              #clienteControl="ngModel">
+              #clienteControl="ngModel" [emptyMessage]="'Nenhum resultado encontrado'">
 
               <ng-template let-cliente pTemplate="item">
                 <div style="display: flex; flex-direction: column;">
@@ -137,7 +137,7 @@
 
             <p-autocomplete class="autocompletedark" [(ngModel)]="clienteSelecionadoDropDownTaskTable"
               [suggestions]="clientesFiltrados" (completeMethod)="filtrarClientes($event)" placeholder="Selecione"
-              [dropdown]="true" field="nome" (onSelect)="aoSelecionarCliente()">
+              [dropdown]="true" field="nome" (onSelect)="aoSelecionarCliente()" [emptyMessage]="'Nenhum resultado encontrado'">
               <ng-template let-cliente pTemplate="item">
                 <div style="display: flex; flex-direction: column;">
                   <span>{{ cliente.nome }}</span>
@@ -158,7 +158,7 @@
         <p-table [value]="tasksFiltradas" [lazy]="true" [paginator]="true" [rows]="10" [loading]="loading"
           responsiveLayout="scroll" [scrollable]="true" (onLazyLoad)="carregarTasksLazy($event)"
           [style.display]="clienteSelecionadoDropDownTaskTable ? 'block' : 'none'" [totalRecords]="totalRecords"
-          [sortField]="'dataCriacao'" [sortOrder]="-1">
+          [sortField]="'dataCriacao'" [sortOrder]="-1" selectionMode="single">
 
           <ng-template pTemplate="header">
             <tr>
@@ -176,7 +176,7 @@
           </ng-template>
 
           <ng-template pTemplate="body" let-task>
-            <tr>
+            <tr [pSelectableRow]="task" (dblclick)="selecionarTask(task)">
               <td>{{ task.titulo }}</td>
               <td>
                 <p-tag *ngIf="getPrioridadeTag(task.prioridade) as prioridadeTag" [value]="prioridadeTag.label"
@@ -190,7 +190,8 @@
               <td>{{ task.dataCriacao | date:'dd/MM/yyyy HH:mm' }}</td>
               <td>{{ task.autor?.nome }}</td>
               <td>
-                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text" (click)="confirmarExclusao(task)"></button>
+                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text"
+                  (click)="confirmarExclusao(task)"></button>
               </td>
             </tr>
           </ng-template>
@@ -235,10 +236,10 @@
         <!-- Cliente -->
         <div class="field">
           <label>Cliente* (obrigatório)</label>
-          <p-autoComplete [(ngModel)]="clienteSelecionadoDropDownFiltro" [suggestions]="clientesFiltrados" required="true"
-            placeholder="Selecione um Cliente ou pesquise pelo nome" (completeMethod)="filtrarClientes($event)"
-            field="nome" name="clientefiltro" [dropdown]="true" #clienteControlTaskFilter="ngModel"
-            [style]="{ width: '100%' }">
+          <p-autoComplete [(ngModel)]="clienteSelecionadoDropDownFiltro" [suggestions]="clientesFiltrados"
+            required="true" placeholder="Selecione um Cliente ou pesquise pelo nome"
+            (completeMethod)="filtrarClientes($event)" field="nome" name="clientefiltro" [dropdown]="true"
+            #clienteControlTaskFilter="ngModel" [style]="{ width: '100%' }" [emptyMessage]="'Nenhum resultado encontrado'">
             <ng-template let-cliente pTemplate="item">
               <div style="display: flex; flex-direction: column;">
                 <span>{{ cliente.nome }}</span>
@@ -292,6 +293,14 @@
 
     </div>
   </p-dialog>
+
+  <app-detalhestask #detalhesTask [selectedTask]="tarefaSelecionada"
+    [getStatusColorByTaskId]="getStatusColorByTaskId.bind(this)"
+    [getStatusLabelByTaskId]="getStatusLabelByTaskId.bind(this)" [getStatusLabel]="getStatusLabel.bind(this)"
+    [getPrioridadeColorByTaskId]="getPrioridadeColorByTaskId.bind(this)"
+    [getPrioridadeLabelByTaskId]="getPrioridadeLabelByTaskId.bind(this)"
+    [getPrioridadeLabel]="getPrioridadeLabel.bind(this)">
+  </app-detalhestask>
 
 
 

@@ -71,6 +71,13 @@ export class TaskService {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
+  buscarDetalhesTask(id: number): Observable<TaskModel> {
+    return this.http.get<TaskModel>(`${this.baseUrl}/detalhes/${id}`);
+  }
+
+
+
+  //formats a Date object to a string in the format 'DD/MM/YYYY'
   private formatarData(data: Date): string {
     const dia = data.getDate().toString().padStart(2, '0');
     const mes = (data.getMonth() + 1).toString().padStart(2, '0');
