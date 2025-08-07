@@ -472,45 +472,6 @@ export class ClientesTableComponent {
     });
   }
 
-  enviarParaWhatsApp() {
-    const numeroWhatsApp = '5518997287085';
-
-    const mensagem = `
-▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
-📋 *Informações do Cliente:*
-
-  👤 ${this.clienteSelecionado.nome}
-
-  • 📄 Documento: ${this.clienteSelecionado.documento}
-  • 📱 Celular: ${this.clienteSelecionado.celular}
-  • 📞 Telefone: ${this.clienteSelecionado.telefone}
- ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
-*Endereço:*
-  • 🛣️ Rua: ${this.clienteSelecionado.endereco.rua}
-  • 🏠 Número: ${this.clienteSelecionado.endereco.numero}
-  • 🏙️ Bairro: ${this.clienteSelecionado.endereco.bairro}
-  • 🌆 Cidade: ${this.clienteSelecionado.endereco.cidade}
-  • 📍 Estado: ${this.clienteSelecionado.endereco.estado}
-  • 📬 CEP: ${this.clienteSelecionado.endereco.cep}
-
-🔄 Status no sistema: ${this.clienteSelecionado.ativo ? '✅ ATIVO' : '🛑 INATIVO'}
-▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄`;
-
-    this.messageService.add({
-      severity: 'info',
-      summary: 'WhatsApp',
-      detail: `Se ainda não houver conversa iniciada para ${numeroWhatsApp}, envie uma para poder colar de forma automática`,
-      life: 15000
-    });
-
-    const mensagemCodificada = encodeURIComponent(mensagem.trim());
-
-    const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${mensagemCodificada}`;
-
-    window.open(url, '_blank');
-  }
-
-
   getBolinhaClass(ultimoLogin: string): string {
     const loginTime = new Date(ultimoLogin).getTime();
     const now = Date.now();

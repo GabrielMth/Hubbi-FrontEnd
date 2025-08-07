@@ -65,6 +65,8 @@ export class NewtaskComponent implements OnInit {
   @ViewChild('tabelaTasks') tabela!: Table;
   @ViewChild('detalhesTask') detalhesTaskComponent!: DetalhestaskComponent;
 
+  dialogDetailsTaskVisible = false;
+
   constructor(
     private ClienteService: ClienteService,
     private TaskService: TaskService,
@@ -108,7 +110,6 @@ export class NewtaskComponent implements OnInit {
   loading: boolean = false;
   totalRecords: number = 0;
 
-  //cores nos pautocomplete
   statusOptions = [
     { label: 'Em Espera', value: 'EM_ESPERA' },
     { label: 'Em Progresso', value: 'EM_PROGRESSO' },
@@ -440,13 +441,14 @@ export class NewtaskComponent implements OnInit {
     this.TaskService.buscarDetalhesTask(task.id).subscribe({
       next: (taskDetalhada) => {
         this.tarefaSelecionada = taskDetalhada;
-        this.detalhesTaskComponent.dialogDetailsTaskVisible = true;
+        this.dialogDetailsTaskVisible = true;
       },
       error: () => {
         this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao carregar detalhes da tarefa.' });
       }
     });
   }
+
 
 
 

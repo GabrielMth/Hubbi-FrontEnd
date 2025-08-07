@@ -24,7 +24,7 @@ type Priority = 'Baixa' | 'Média' | 'Alta' | 'Crítica';
   styleUrls: ['./kanban-board.component.scss'],
   standalone: true,
   imports: [TooltipModule , CommonModule, PanelModule, DragDropModule, Tag, Dialog, ButtonModule,
-    DividerModule, CommentsSectionComponent,
+    DividerModule,
   ],
 })
 export class KanbanBoardComponent {
@@ -59,7 +59,7 @@ export class KanbanBoardComponent {
         Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.`,
         expanded: false,
         priority: 'Alta',
-        comments: [{author: 'Renan Vaz', text: 'Comentário de teste', date: new Date('2025-05-19T10:00:00') }],
+        comments: [{id: 1, autor: 'Renan Vaz', texto: 'Comentário de teste', criadoEm: new Date('2025-05-19T10:00:00') }],
         createdAt: new Date('2025-05-19T10:00:00'),
         createdBy: 'Renan Vaz',
         movements: [

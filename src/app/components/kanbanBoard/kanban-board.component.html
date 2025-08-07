@@ -89,10 +89,7 @@
       {{ selectedTask.description }}
     </p>
 
-    <!-- Comentários -->
-    <app-comments-section [comments]="selectedTask.comments || []" [author]="'Gabriel Matheus'"
-      (commentAdded)="handleNewComment($event)">
-    </app-comments-section>
+
 
   </ng-container>
 </p-dialog>

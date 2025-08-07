@@ -1,6 +1,12 @@
 export interface CommentModel {
-  author: string;
-  text: string;
-  date: Date;
-  mediaBase64?: { type: 'image' | 'video', data: string }[];
+  id: number;
+  autor: string;
+  texto: string;
+  criadoEm: Date;
+  midias?: Media[];
+}
+
+export interface Media {
+  tipo: 'image' | 'video' | 'file';
+  url: string;
 }

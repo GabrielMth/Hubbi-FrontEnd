@@ -133,11 +133,12 @@
           style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
           <!-- Agrupar label + autocomplete -->
           <div style="display: flex; align-items: center;">
-            <label for="filtroCliente">Filtrar por Cliente</label>
+
 
             <p-autocomplete class="autocompletedark" [(ngModel)]="clienteSelecionadoDropDownTaskTable"
               [suggestions]="clientesFiltrados" (completeMethod)="filtrarClientes($event)" placeholder="Selecione"
-              [dropdown]="true" field="nome" (onSelect)="aoSelecionarCliente()" [emptyMessage]="'Nenhum resultado encontrado'">
+              [dropdown]="true" field="nome" (onSelect)="aoSelecionarCliente()"
+              [emptyMessage]="'Nenhum resultado encontrado'">
               <ng-template let-cliente pTemplate="item">
                 <div style="display: flex; flex-direction: column;">
                   <span>{{ cliente.nome }}</span>
@@ -148,7 +149,10 @@
                 {{ cliente.nome }} - {{ cliente.documento }}
               </ng-template>
             </p-autocomplete>
+            <label style="margin-left: 5px;" for="filtroCliente"> Pesquise o cliente por nome ou documento</label>
           </div>
+
+
 
           <!-- Botão alinhado à direita -->
           <p-button icon="pi pi-filter" label="Filtros" (onClick)="dialogFiltroVisivel = true">
@@ -239,7 +243,8 @@
           <p-autoComplete [(ngModel)]="clienteSelecionadoDropDownFiltro" [suggestions]="clientesFiltrados"
             required="true" placeholder="Selecione um Cliente ou pesquise pelo nome"
             (completeMethod)="filtrarClientes($event)" field="nome" name="clientefiltro" [dropdown]="true"
-            #clienteControlTaskFilter="ngModel" [style]="{ width: '100%' }" [emptyMessage]="'Nenhum resultado encontrado'">
+            #clienteControlTaskFilter="ngModel" [style]="{ width: '100%' }"
+            [emptyMessage]="'Nenhum resultado encontrado'">
             <ng-template let-cliente pTemplate="item">
               <div style="display: flex; flex-direction: column;">
                 <span>{{ cliente.nome }}</span>
@@ -294,15 +299,12 @@
     </div>
   </p-dialog>
 
-  <app-detalhestask #detalhesTask [selectedTask]="tarefaSelecionada"
+  <app-detalhestask [(dialogDetailsTaskVisible)]="dialogDetailsTaskVisible" [selectedTask]="tarefaSelecionada"
     [getStatusColorByTaskId]="getStatusColorByTaskId.bind(this)"
     [getStatusLabelByTaskId]="getStatusLabelByTaskId.bind(this)" [getStatusLabel]="getStatusLabel.bind(this)"
     [getPrioridadeColorByTaskId]="getPrioridadeColorByTaskId.bind(this)"
     [getPrioridadeLabelByTaskId]="getPrioridadeLabelByTaskId.bind(this)"
-    [getPrioridadeLabel]="getPrioridadeLabel.bind(this)">
-  </app-detalhestask>
-
-
+    [getPrioridadeLabel]="getPrioridadeLabel.bind(this)"></app-detalhestask>
 
 
 

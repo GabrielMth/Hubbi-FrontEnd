@@ -1,5 +1,5 @@
 <p-dialog class="dialogdetails" [(visible)]="dialogDetailsTaskVisible" [modal]="true" header="Detalhes do Card"
-  [style]="{ width: '55rem', height: '55rem' }">
+  [style]="{ width: '55rem', height: '55rem' }" (onHide)="dialogDetailsTaskVisibleChange.emit(false)">
 
   <ng-container *ngIf="selectedTask">
 
@@ -15,7 +15,7 @@
         [value]="getPrioridadeLabelByTaskId(selectedTask.id) + ' |'" rounded pTooltip="Prioridade">
       </p-tag>
 
-      <i #infoIcon class="pi pi-info-circle" style="font-size: 1.2rem; color: #555; cursor: pointer; margin-left: auto;"
+      <i #infoIcon class="pi pi-info-circle" style="font-size: 1.2rem; color: #cfcfcf; cursor: pointer; margin-left: auto;"
         tabindex="0" aria-label="Informações da tarefa" [pTooltip]="informacaoTask" tooltipPosition="left"
         [appendTo]="'body'" [tooltipStyleClass]="'custom-task-tooltip'">
       </i>
@@ -23,11 +23,12 @@
       <ng-template #informacaoTask>
         <div class="flex items-center" style="max-width: 20rem; font-size: 0.70rem;">
           <div>
+            <div style="color: rgb(116, 199, 253);">Nº » [{{selectedTask.id}}]</div>
             <div><strong>Criado em:</strong> {{ selectedTask.dataCriacao | date: 'dd/MM/yyyy HH:mm' }}</div>
             <div><strong>Criado por:</strong> {{ selectedTask.autor.nome }}</div>
             <div><strong>Movimentações:</strong></div>
             <ul style="margin: 0; padding-left: 1rem;">
-              <li *ngFor="let m of selectedTask?.movements">
+              <li *ngFor="let m of selectedTask?.movimentacoes">
                 De <em>{{ getStatusLabel(m.from) }}</em> para <em>{{ getStatusLabel(m.to) }}</em> em
                 {{ m.date | date: 'dd/MM/yyyy HH:mm' }} por {{m.author}}
               </li>
@@ -45,8 +46,7 @@
 
 
     <!-- Comentários -->
-    <app-comments-section
-      (commentAdded)="handleNewComment($event)">
+    <app-comments-section [comments]="selectedTask.comentarios" [taskId]="selectedTask.id">
     </app-comments-section>
 
   </ng-container>

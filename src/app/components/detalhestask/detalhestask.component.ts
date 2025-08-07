@@ -26,10 +26,7 @@ export class DetalhestaskComponent {
   @Input() getPrioridadeLabel!: (prioridade: string) => string;
   @Output() commentAdded = new EventEmitter<any>();
 
-  dialogDetailsTaskVisible = false;
-
-  handleNewComment(comment: any) {
-    this.commentAdded.emit(comment);
-  }
+  @Input() dialogDetailsTaskVisible!: boolean;
+  @Output() dialogDetailsTaskVisibleChange = new EventEmitter<boolean>();
 
 }
